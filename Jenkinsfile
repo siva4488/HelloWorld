@@ -26,10 +26,13 @@ pipeline
 					Neither Maven nor ant is required. The HelloWorld.sh is used directly as from source as the compiled code in this example use case.
 				*/
 				
-				echo '-----------------------BUILDING-----------------------'
+				echo '***************************************** BUILDING *****************************************'
 				sh 'mkdir build'
 				sh 'cp HelloWorld.sh build/HelloWorld.sh'
 				sh 'chmod 555 build/HelloWorld.sh'
+				echo env.BUILD_NUMBER
+				sh 'echo env.BUILD_NUMBER > build/version.txt'
+				error 'exit'
             }
         }
         stage('Test') 
@@ -43,7 +46,7 @@ pipeline
 					After testing is complete, the new VM is deleted through HCMX to release resource usage on the cloud provider.
 				*/
 				
-				echo '-----------------------TESTING-----------------------'				
+				echo '***************************************** PROVISIONING VM(s) THROUGH HCMX FOR TESTING THE BUILD  *****************************************'				
 				
 				script 
 				{
@@ -183,11 +186,11 @@ pipeline
 											echo "HCMX: IP address of deployed virtual machine is $ipAddress"	
 											
 											// Copy build to the deployed virtual machine for testing.
-											echo "Copying build to the deployed VM for testing"
-											final String scpCMDOutput = sh(script: "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp ./build root@$ipAddress:/tmp/", returnStdout: true).trim()
+											echo '***************************************** COPYING BUILD TO THE DEPLOYED VM FOR TESTING  *****************************************'
+											//final String scpCMDOutput = sh(script: "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp ./build root@$ipAddress:/tmp/", returnStdout: true).trim()
 											
 											// Test build on the deployed virtual machine.
-											echo "Testing build on the deployed VM"
+											echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM *****************************************'
 											final String remoteCMDOutput = sh(script: "ssh -o StrictHostKeyChecking=no root@$ipAddress /tmp/build/HelloWorld.sh", returnStdout: true).trim()
 											
 											// For demo and testing only. Comment out this line in production environment.
