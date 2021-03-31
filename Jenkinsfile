@@ -30,8 +30,7 @@ pipeline
 				sh 'mkdir build'
 				sh 'cp HelloWorld.sh build/HelloWorld.sh'
 				sh 'chmod 555 build/HelloWorld.sh'
-				sh "echo version := 1.0.${env.BUILD_ID} >> build/version.txt"
-				error 'exit'
+				sh "echo version = 1.0.${env.BUILD_ID} >> build/version.txt"				
             }
         }
         stage('Test') 
