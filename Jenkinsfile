@@ -117,7 +117,7 @@ pipeline
 									
 									// Build HCMX Get request status URL
 									final String HCMX_GET_REQUEST_STATUS_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Request?filter=(Id=%27" + HCMX_REQUEST_ID + "%27)&layout=PhaseId"
-									String reqStatus = ""
+									String reqStatus = "Log"
 									int reqCode = 0
 									int timeSpent = 0
 									String reqResponse = ""
