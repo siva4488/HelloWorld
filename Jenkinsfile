@@ -77,7 +77,7 @@ pipeline
 						
                         final def (String SMAX_AUTH_TOKEN, int getTokenResCode) = sh(script: '''set +x;curl -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$USERNAME"\'","password":"\'"$PASSWORD"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
 						
-						if (getTokenResCode == 200)
+						if (getTokenResCode == 200 && SMAX_AUTH_TOKEN && SMAX_AUTH_TOKEN.trim())
 						{											
 							echo "HCMX: Get person ID"
 							// Build HCMX Get Person ID URL
@@ -91,7 +91,7 @@ pipeline
 							
 							final def (String personIDResponse, int personIDResCode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + USERNAME + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 							
-							if (personIDResCode == 200) 
+							if (personIDResCode == 200 && personIDResponse && personIDResponse.trim()) 
 							{
 								def personIDResponseJSON = new groovy.json.JsonSlurperClassic().parseText(personIDResponse)							
 								def HCMX_PERSON_ID = personIDResponseJSON.entities[0].properties.Id
@@ -109,7 +109,7 @@ pipeline
 								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''" ,"StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Optionfda5ee32d7d24a63cb0035926c667e8b_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"CAT\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"catvmlmdep_t***CentOS 4/5 or later (64-bit)\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"(Ts)catvmLinuxDHCP\\",\\"Optionfda5ee32d7d24a63cb0035926c667e8b_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false}}]}","Description":"<p>hello world test vm</p>","RelatedSubscriptionName":"HelloWorldVM","RelatedSubscriptionDescription":"<p>HelloWorldVM</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"Request: vCenter Compute - Deploy VM from Template"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
 								
 												
-								if (depVMResponseCode == 200) 
+								if (depVMResponseCode == 200 && depVMResponse && depVMResponse.trim()) 
 								{
 									def depVMResponseJSON = new groovy.json.JsonSlurperClassic().parseText(depVMResponse)								
 									def HCMX_REQUEST_ID = depVMResponseJSON.entity_result_list.entity[0].properties.Id
@@ -134,7 +134,7 @@ pipeline
 										echo "HCMX: Get request status until it is Closed"
 										(reqResponse, reqCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 																				
-										if (reqCode == 200) 
+										if (reqCode == 200 && reqResponse && reqResponse.trim()) 
 										{
 											def reqResponseJSON = new groovy.json.JsonSlurperClassic().parseText(reqResponse)
 											reqStatus = reqResponseJSON.entities[0].properties.PhaseId
@@ -163,7 +163,7 @@ pipeline
 									
 									// Submit a REST API call to HCMX to get subscription ID
 									final def (String subResponse, int subRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-									if (subRescode == 200) 
+									if (subRescode == 200 && subResponse && subResponse.trim()) 
 									{
 										def subResponseJSON = new groovy.json.JsonSlurperClassic().parseText(subResponse)									
 										subID = subResponseJSON.entities[0].properties.Id
@@ -175,7 +175,7 @@ pipeline
 										
 										// Submit a REST API call to HCMX to get a list of service instances associated with the subscription
 										final def (String svcInstResponse, int svcInstRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-										if (svcInstRescode == 200) 
+										if (svcInstRescode == 200 && svcInstResponse && svcInstResponse.trim()) 
 										{
 											def svcInstResponseJSON = new groovy.json.JsonSlurperClassic().parseText(svcInstResponse)
 											def svcInstTopologyArray = svcInstResponseJSON.topology
