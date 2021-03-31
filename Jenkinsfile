@@ -9,8 +9,7 @@ pipeline
 		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
 		// HCMX will be used to provision VMs on which testing of the new build will be performed.
 		// After testing is complete, provisioned VMs are deleted so that expenses on public cloud is reduced and resource usage on private cloud is reduced.
-		HCMX_TENANT_ID = '616409711'
-		
+		HCMX_TENANT_ID = '616409711'		
     }
 
     stages 
@@ -52,6 +51,7 @@ pipeline
 					{
                         final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
 						final int HCMX_SUB_CANCEL_DELAY_SECONDS = 180
+						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT = 60
 						
 						
 						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
@@ -111,11 +111,17 @@ pipeline
 									final String HCMX_GET_REQUEST_STATUS_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Request?filter=(Id=%27" + HCMX_REQUEST_ID + "%27)&layout=PhaseId"
 									String reqStatus = ""
 									int reqCode = 0
+									int timeSpent = 0
 									String reqResponse = ""
 									
 									// Loop until Request status changes to Close. Once it is in closed status VM is deployed and ready for testing.
 									while (reqStatus != 'Close')
 									{
+										
+										if (timeSpent > HCMX_REQ_DEPLOY_TESTVM_TIMEOUT)
+										{
+											error "Failed to provision VM deployment within the timeout period of $HCMX_REQ_DEPLOY_TESTVM_TIMEOUT seconds"										
+										}
 										// Submit a REST API call to HCMX to get status of VM deployment request
 										echo "HCMX: Get request status until it is Closed"
 										(reqResponse, reqCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
@@ -125,7 +131,7 @@ pipeline
 											def reqResponseJSON = new groovy.json.JsonSlurperClassic().parseText(reqResponse)
 											reqStatus = reqResponseJSON.entities[0].properties.PhaseId
 											echo "HCMX REQUEST status is $reqStatus"
-											if (reqStatus.equalsIgnoreCase("Close"))
+											if (reqStatus && reqStatus.equalsIgnoreCase("Close"))
 											{
 												// If request for VM deployment has moved to Close phase, then VM has been deployed successfully.
 												break;
@@ -134,11 +140,12 @@ pipeline
 											{
 												echo "sleep for $HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS seconds before checking request status again"
 												sleep(HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS)
+												timeSpent = timeSpent + HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
 											}                                        
 										}
 										else
 										{
-											error 'req status failed'
+											error 'Failed to get request status for VM deployment from HCMX'
 										}
 									}
 									
@@ -170,12 +177,12 @@ pipeline
 											// Loop through service instances. Retrieve IP address property value for the service instance with type = CI_TYPE_SERVER
 											for(def member : svcInstTopologyArray) 
 											{
-												if(member.type.name == 'CI_TYPE_SERVER') 
+												if(member.type.name && member.type.name.equalsIgnoreCase("CI_TYPE_SERVER")) 
 												{
 													def svcInstPropertyArray = member.properties
 													for(def propMember : svcInstPropertyArray) 
 													{
-														if(propMember.name == 'primary_ip_address') 
+														if(propMember.name && propMember.name.equalsIgnoreCase("primary_ip_address"))
 														{
 															ipAddress = propMember.propertyValue																										 
 															break
@@ -220,7 +227,7 @@ pipeline
 											
 											
 											// Validate test results from build execution results on remotely deployed virtual machine
-											if(remoteCMDOutput == "Hello World")
+											if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
 											{
 												echo "Testing of new build was succesful.. Proceeding to deploy stage."
 											}
@@ -250,8 +257,8 @@ pipeline
 							}
 							else
 							{
-								// echo "Unable to get user ID for the user $USERNAME to submit REST API calls to HCMX... "
-								error 'Unable to get user ID for the user to submit REST API calls to HCMX... '
+								echo "Unable to get user ID for the HCMX user to submit REST API calls to HCMX... "
+								error 'Unable to get user ID for the HCMX user to submit REST API calls to HCMX... '
 							}
 						}
 						else
