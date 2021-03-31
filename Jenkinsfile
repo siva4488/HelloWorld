@@ -30,7 +30,7 @@ pipeline
 				sh 'mkdir build'
 				sh 'cp HelloWorld.sh build/HelloWorld.sh'
 				sh 'chmod 555 build/HelloWorld.sh'
-				echo "Version number=${env.BUILD_NUMBER}" > build/version.txt				
+				sh "echo \"Version number=${env.BUILD_NUMBER}\""
 				error 'exit'
             }
         }
