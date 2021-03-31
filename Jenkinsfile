@@ -50,7 +50,7 @@ pipeline
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
                         final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
-						final int HCMX_SUB_CANCEL_DELAY_SECONDS = 1
+						final int HCMX_SUB_CANCEL_DELAY_SECONDS = 180
 						
 						
 						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
