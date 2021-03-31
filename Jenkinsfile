@@ -212,71 +212,31 @@ pipeline
 												echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM *****************************************'
 												final String remoteCMDOutput = sh(script: "ssh -o StrictHostKeyChecking=no root@$ipAddress /tmp/build/HelloWorld.sh", returnStdout: true).trim()
 												
-												// For demo and testing only. Comment out this line in production environment.
-												echo "sleep for $HCMX_SUB_CANCEL_DELAY_SECONDS seconds before canceling subscription to delete deployed VM for testing."
-												sleep(HCMX_SUB_CANCEL_DELAY_SECONDS)
-												
-												echo "HCMX: Canceling subscription"
-												// Cancel subscription to delete deployed virtual machines. This frees up resources on cloud provider and reduces cloud spend.
-												// Prepare HCMX cancel subscription URL using the subscription ID and the person ID that were obtained in earlier steps.
-												final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
-												
-												// Submit a REST API call to HCMX to cancel subscription, thereby delete deployed VM
-												final def (String subCancelResponse, int subCancelRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-												
-												
-												if (subCancelRescode == 200) 
-												{
-													echo "HCMX Subscription canceled successfully"
-												}
-												else
-												{
-													echo "HCMX subscription cancellation failed. Removal of deployed VM has failed."
-													echo "HCMX Subscription cancellation response: $subCancelResponse"
-												}
-												
 												// Validate test results from build execution results on remotely deployed virtual machine
 												if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
 												{
-													echo "Testing of new build was succesful.. Proceeding to deploy stage."													
+													echo "Testing of new build was succesful..Deleting deployed VMs and then Proceeding to deploy stage."
+													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
 												}
 												else
 												{
 													echo "Testing of new build has failed... "
+													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
 													error "Testing of new build has failed..."
 												}
+												
 											}
 											else
 											{
 												echo "Deployed VM's IP address is empty. Cannot copy build to test VM"
-												// For demo and testing only. Comment out this line in production environment.
-												echo "sleep for $HCMX_SUB_CANCEL_DELAY_SECONDS seconds before canceling subscription to delete deployed VM for testing."
-												sleep(HCMX_SUB_CANCEL_DELAY_SECONDS)
-												
-												echo "HCMX: Canceling subscription"
-												// Cancel subscription to delete deployed virtual machines. This frees up resources on cloud provider and reduces cloud spend.
-												// Prepare HCMX cancel subscription URL using the subscription ID and the person ID that were obtained in earlier steps.
-												final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
-												
-												// Submit a REST API call to HCMX to cancel subscription, thereby delete deployed VM
-												final def (String subCancelResponse, int subCancelRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-												
-												
-												if (subCancelRescode == 200) 
-												{
-													echo "HCMX Subscription canceled successfully"
-												}
-												else
-												{
-													echo "HCMX subscription cancellation failed. Removal of deployed VM has failed."
-													echo "HCMX Subscription cancellation response: $subCancelResponse"
-												}
+												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
 												error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"
 											}																			
 										}
 										else
 										{
 											echo "Failed to get service instances from HCMX"
+											CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
 											error "Failed to get service instances from HCMX"
 										}
 									} 
@@ -321,4 +281,29 @@ pipeline
             }
         }
     }
+}
+
+def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQDN, String HCMX_TENANT_ID, String HCMX_PERSON_ID, String subID, String SMAX_AUTH_TOKEN )
+{
+	// For demo and testing only. Comment out this line in production environment.
+	echo "sleep for $HCMX_SUB_CANCEL_DELAY_SECONDS seconds before canceling subscription to delete deployed VM for testing."
+	sleep(HCMX_SUB_CANCEL_DELAY_SECONDS)
+	
+	echo "HCMX: Canceling subscription"
+	// Cancel subscription to delete deployed virtual machines. This frees up resources on cloud provider and reduces cloud spend.
+	// Prepare HCMX cancel subscription URL using the subscription ID and the person ID that were obtained in earlier steps.
+	final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
+	
+	// Submit a REST API call to HCMX to cancel subscription, thereby delete deployed VM
+	final def (String subCancelResponse, int subCancelRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+		
+	if (subCancelRescode == 200) 
+	{
+		echo "HCMX Subscription canceled successfully"
+	}
+	else
+	{
+		echo "HCMX subscription cancellation failed. Removal of deployed VM has failed."
+		echo "HCMX Subscription cancellation response: $subCancelResponse"
+	}
 }
