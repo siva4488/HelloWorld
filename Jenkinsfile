@@ -317,7 +317,7 @@ pipeline
 					delete those test VMs after testing is complete.
 				*/
                 
-				echo '-----------------------DEPLOYING-----------------------'
+				echo '***************************************** DEPLOYING *****************************************'
             }
         }
     }
