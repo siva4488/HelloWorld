@@ -185,7 +185,7 @@ pipeline
 											
 											// Copy build to the deployed virtual machine for testing.
 											echo '***************************************** COPYING BUILD TO THE DEPLOYED VM FOR TESTING  *****************************************'
-											//final String scpCMDOutput = sh(script: "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp ./build root@$ipAddress:/tmp/", returnStdout: true).trim()
+											final String scpCMDOutput = sh(script: "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp ./build root@$ipAddress:/tmp/", returnStdout: true).trim()
 											
 											// Test build on the deployed virtual machine.
 											echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM *****************************************'
