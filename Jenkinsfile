@@ -23,7 +23,7 @@ pipeline
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
 		
 		// Prefix deployed VM name with the setting in HCMX_DEPLOYED_VM_PREFIX
-		HCMX_DEPLOYED_VM_PREFIX = "HelloWorldVM"
+		HCMX_DEPLOYED_VM_PREFIX = "TestHelloWorldVM"
 		
     }
 
