@@ -14,14 +14,14 @@ pipeline
 
 		// Define interval in seconds to check status of VM deployment request in HCMX
 		// VM deployment may take longer than 10 minutes depending on cloud provider.
-		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
+		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = "30"
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		HCMX_SUB_CANCEL_DELAY_SECONDS = 1
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
-		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
+		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
@@ -38,10 +38,10 @@ pipeline
 		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
 		
 		// Memory size in MB to be used for the deployment of VM
-		HCMX_VCENTER_VM_MEMORY_SIZE = 1024
+		HCMX_VCENTER_VM_MEMORY_SIZE = "1024"
 		
 		// Number of CPUs to be used for the deployment of VM
-		HCMX_VCENTER_VM_NUM_CPU = "ABCD"
+		HCMX_VCENTER_VM_NUM_CPU = "1"
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
@@ -229,10 +229,8 @@ pipeline
 						else
 						{
 							error "HCMX_VCENTER_VM_SUB_DESCRIPTION cannot be NULL or empty"
-						}					
+						}				
 						
-						
-						error "exit"
 						
 						echo "HCMX: Get SMAX Auth Token"
 						// HCMX REST APIs require SMAX AUTH TOKEN and TENANT ID to perform any POST, PUT and GET operations.
