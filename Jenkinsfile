@@ -5,12 +5,13 @@ pipeline
 	{
         /********** GLOBAL environment variables applicable to all HCMX offerings ************/
 		// HCMX Server's fully qualified domain name
-		HCMX_SERVER_FQDN = ""
+		HCMX_SERVER_FQDN = "catvmlmpoc1.ftc.hpeswlab.net"
         
 		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
 		// HCMX will be used to provision VMs on which testing of the new build will be performed.
 		// After testing is complete, provisioned VMs are deleted so that expenses on public cloud is reduced and resource usage on private cloud is reduced.
-		HCMX_TENANT_ID = "616409711"
+		//HCMX_TENANT_ID = "616409711"
+		HCMX_TENANT_ID = ""
 
 		// Define interval in seconds to check status of VM deployment request in HCMX
 		// VM deployment may take longer than 10 minutes depending on cloud provider.
