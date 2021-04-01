@@ -20,16 +20,16 @@ pipeline
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		//HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "A"
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
+		
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
-		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "ABC"
+		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
 		// VMWare vCenter data center in which VM has to be deployed
-		HCMX_VCENTER_DATACENTER = "CAT"
+		HCMX_VCENTER_DATACENTER = ""
 		
 		//VMWare vCenter template to be used for deployment of VM
 		HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
