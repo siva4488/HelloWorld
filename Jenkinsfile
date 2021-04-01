@@ -29,10 +29,11 @@ pipeline
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
 		// VMWare vCenter data center in which VM has to be deployed
-		HCMX_VCENTER_DATACENTER = ""
+		HCMX_VCENTER_DATACENTER = "CAT"
 		
 		//VMWare vCenter template to be used for deployment of VM
-		HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
+		//HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
+		HCMX_VCENTER_VM_TEMPLATE = ""
 		
 		//VMWare vCenter custom spec to be used for deployment of VM
 		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
