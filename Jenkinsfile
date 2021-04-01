@@ -5,7 +5,7 @@ pipeline
 	{
         /********** GLOBAL environment variables applicable to all HCMX offerings ************/
 		// HCMX Server's fully qualified domain name
-		HCMX_SERVER_FQDN = "catvmlmpoc1.ftc.hpeswlab.net"
+		HCMX_SERVER_FQDN = ""
         
 		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
 		// HCMX will be used to provision VMs on which testing of the new build will be performed.
