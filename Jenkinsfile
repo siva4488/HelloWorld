@@ -11,17 +11,14 @@ pipeline
 		// HCMX will be used to provision VMs on which testing of the new build will be performed.
 		// After testing is complete, provisioned VMs are deleted so that expenses on public cloud is reduced and resource usage on private cloud is reduced.
 		HCMX_TENANT_ID = "616409711"
-		
 
 		// Define interval in seconds to check status of VM deployment request in HCMX
 		// VM deployment may take longer than 10 minutes depending on cloud provider.
 		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = "30"
 		
-		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
 		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
-		
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
@@ -34,15 +31,14 @@ pipeline
 		//VMWare vCenter template to be used for deployment of VM
 		HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
 		
-		
 		//VMWare vCenter custom spec to be used for deployment of VM
 		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
-				
+		
 		//VM name prefix to be used during deployment of VM
 		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
-				
+		
 		// Memory size in MB to be used for the deployment of VM
-		HCMX_VCENTER_VM_MEMORY_SIZE = "62750720"
+		HCMX_VCENTER_VM_MEMORY_SIZE = "10240000000000000"
 		
 		// Number of CPUs to be used for the deployment of VM
 		HCMX_VCENTER_VM_NUM_CPU = "1"		
@@ -109,11 +105,7 @@ pipeline
 						final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
 													
 						// Maximum number of CPUs that can be specified to deploy VM
-						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32
-						
-						
-						
-						
+						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32						
 						
 						String HCMX_SERVER_FQDN
 						String HCMX_TENANT_ID
@@ -125,13 +117,12 @@ pipeline
 						String HCMX_VCENTER_VM_TEMPLATE
 						String HCMX_VCENTER_VM_CUSTOMSPEC
 						String HCMX_VCENTER_VMNAME_PREFIX						
-						int HCMX_VCENTER_VM_MEMORY_SIZE = 1024
+						long HCMX_VCENTER_VM_MEMORY_SIZE = 1024
 						int HCMX_VCENTER_VM_NUM_CPU = 1
 						String HCMX_VCENTER_VM_REQUEST_TITLE
 						String HCMX_VCENTER_VM_REQUEST_DESCRIPTION
 						String HCMX_VCENTER_VM_SUB_NAME
 						String HCMX_VCENTER_VM_SUB_DESCRIPTION
-						
 						
 						if(env.HCMX_SERVER_FQDN)
 						{
@@ -150,8 +141,7 @@ pipeline
 						{
 							error "HCMX_TENANT_ID cannot be NULL or empty"
 						}
-						
-												
+																		
 						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS && env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS.toString().isNumber())
 						{
 							HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS as int
@@ -178,7 +168,6 @@ pipeline
 						{
 							error "HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS must be an integer"
 						}
-						
 						
 						if(env.HCMX_VCENTER_DATACENTER)
 						{
@@ -218,10 +207,10 @@ pipeline
                         
 						if (env.HCMX_VCENTER_VM_MEMORY_SIZE && env.HCMX_VCENTER_VM_MEMORY_SIZE.toString().isNumber())
 						{
-							HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE as int
+							HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE as long
 							if (HCMX_VCENTER_VM_MEMORY_SIZE < HCMX_VCENTER_VM_MIN_MEMORY_SIZE || HCMX_VCENTER_VM_MEMORY_SIZE > HCMX_VCENTER_VM_MAX_MEMORY_SIZE )
 							{
-								error "HCMX_VCENTER_VM_MEMORY_SIZE in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE in MB must be <= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE"
+								error "HCMX_VCENTER_VM_MEMORY_SIZE in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE in MB must be <= $HCMX_VCENTER_VM_MAX_MEMORY_SIZE"
 							}							
 						}
 						else
