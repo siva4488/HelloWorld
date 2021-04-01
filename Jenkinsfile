@@ -96,16 +96,16 @@ pipeline
 					{
                         
 						// Minimum memory size in MB that must be specified to deploy VMs
-						final int HCMX_VCENTER_VM_MIN_MEMORY_SIZE = "4"
+						final int HCMX_VCENTER_VM_MIN_MEMORY_SIZE = 4
 		
 						// Maximum memory size in MB that can be specified to deploy VMs
-						final int HCMX_VCENTER_VM_MAX_MEMORY_SIZE = "6275072"
+						final int HCMX_VCENTER_VM_MAX_MEMORY_SIZE = 6275072
 						
 						// Minimum number of CPUs that must be specified to deploy VM
-						final int HCMX_VCENTER_VM_MIN_NUM_CPU = "1"
+						final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
 													
 						// Maximum number of CPUs that can be specified to deploy VM
-						final int HCMX_VCENTER_VM_MAX_NUM_CPU = "32"
+						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32
 						
 						if(env.HCMX_SERVER_FQDN)
 						{
