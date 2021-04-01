@@ -21,7 +21,7 @@ pipeline
 		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
-		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
+		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "ABC"
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
