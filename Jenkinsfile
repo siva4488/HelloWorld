@@ -38,10 +38,10 @@ pipeline
 		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
 		
 		// Memory size in MB to be used for the deployment of VM
-		HCMX_VCENTER_VM_MEMORY_SIZE = "10240000000000000"
+		HCMX_VCENTER_VM_MEMORY_SIZE_MB = "1024"
 		
 		// Number of CPUs to be used for the deployment of VM
-		HCMX_VCENTER_VM_NUM_CPU = "1"		
+		HCMX_VCENTER_VM_NUM_CPU = "33"		
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
@@ -117,7 +117,7 @@ pipeline
 						String HCMX_VCENTER_VM_TEMPLATE
 						String HCMX_VCENTER_VM_CUSTOMSPEC
 						String HCMX_VCENTER_VMNAME_PREFIX						
-						long HCMX_VCENTER_VM_MEMORY_SIZE = 1024
+						long HCMX_VCENTER_VM_MEMORY_SIZE_MB = 1024
 						int HCMX_VCENTER_VM_NUM_CPU = 1
 						String HCMX_VCENTER_VM_REQUEST_TITLE
 						String HCMX_VCENTER_VM_REQUEST_DESCRIPTION
@@ -205,17 +205,17 @@ pipeline
 							error "HCMX_VCENTER_VMNAME_PREFIX cannot be NULL or empty"
 						}
                         
-						if (env.HCMX_VCENTER_VM_MEMORY_SIZE && env.HCMX_VCENTER_VM_MEMORY_SIZE.toString().isNumber())
+						if (env.HCMX_VCENTER_VM_MEMORY_SIZE_MB && env.HCMX_VCENTER_VM_MEMORY_SIZE_MB.toString().isNumber())
 						{
-							HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE as long
-							if (HCMX_VCENTER_VM_MEMORY_SIZE < HCMX_VCENTER_VM_MIN_MEMORY_SIZE || HCMX_VCENTER_VM_MEMORY_SIZE > HCMX_VCENTER_VM_MAX_MEMORY_SIZE )
+							HCMX_VCENTER_VM_MEMORY_SIZE_MB = env.HCMX_VCENTER_VM_MEMORY_SIZE_MB as long
+							if (HCMX_VCENTER_VM_MEMORY_SIZE_MB < HCMX_VCENTER_VM_MIN_MEMORY_SIZE || HCMX_VCENTER_VM_MEMORY_SIZE_MB > HCMX_VCENTER_VM_MAX_MEMORY_SIZE )
 							{
-								error "HCMX_VCENTER_VM_MEMORY_SIZE in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE in MB must be <= $HCMX_VCENTER_VM_MAX_MEMORY_SIZE"
+								error "HCMX_VCENTER_VM_MEMORY_SIZE_MB in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE_MB in MB must be <= $HCMX_VCENTER_VM_MAX_MEMORY_SIZE"
 							}							
 						}
 						else
 						{
-							error "HCMX_VCENTER_VM_MEMORY_SIZE must be an integer"
+							error "HCMX_VCENTER_VM_MEMORY_SIZE_MB must be an integer"
 						}
 						
 						if (env.HCMX_VCENTER_VM_NUM_CPU && env.HCMX_VCENTER_VM_NUM_CPU.toString().isNumber())
@@ -306,7 +306,7 @@ pipeline
 												
 								
 								// Submit a REST API call to HCMX to deploy a new test server VM 
-								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
+								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
 								
 												
 								if (depVMResponseCode == 200 && depVMResponse && depVMResponse.trim()) 
