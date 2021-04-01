@@ -105,7 +105,8 @@ pipeline
 						final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
 													
 						// Maximum number of CPUs that can be specified to deploy VM
-						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32			
+						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32
+						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
 						
 						
 						if(env.HCMX_SERVER_FQDN)
@@ -147,7 +148,7 @@ pipeline
 						
 						if (env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS && env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS.toString().isNumber())
 						{
-							final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS as int
+							HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS as int
 						}
 						else
 						{
@@ -311,7 +312,6 @@ pipeline
 									// Loop until Request status changes to Close. Once it is in closed status VM is deployed and ready for testing.
 									while (reqStatus != 'Close')
 									{
-										
 										if (timeSpent > HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS)
 										{
 											error "Failed to provision VM deployment within the timeout period of $HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS seconds"										
