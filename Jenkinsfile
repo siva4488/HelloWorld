@@ -106,12 +106,32 @@ pipeline
 													
 						// Maximum number of CPUs that can be specified to deploy VM
 						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32
-						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
+						
+						
+						
+						
+						
+						String HCMX_SERVER_FQDN
+						String HCMX_TENANT_ID
+						int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
+						int HCMX_SUB_CANCEL_DELAY_SECONDS = 0						
+						int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
+						
+						String HCMX_VCENTER_DATACENTER
+						String HCMX_VCENTER_VM_TEMPLATE
+						String HCMX_VCENTER_VM_CUSTOMSPEC
+						String HCMX_VCENTER_VMNAME_PREFIX						
+						int HCMX_VCENTER_VM_MEMORY_SIZE = 1024
+						int HCMX_VCENTER_VM_NUM_CPU = 1
+						String HCMX_VCENTER_VM_REQUEST_TITLE
+						String HCMX_VCENTER_VM_REQUEST_DESCRIPTION
+						String HCMX_VCENTER_VM_SUB_NAME
+						String HCMX_VCENTER_VM_SUB_DESCRIPTION
 						
 						
 						if(env.HCMX_SERVER_FQDN)
 						{
-							final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+							HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
 						}
 						else
 						{
@@ -120,7 +140,7 @@ pipeline
 						
 						if(env.HCMX_TENANT_ID)
 						{
-							final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
+							HCMX_TENANT_ID = env.HCMX_TENANT_ID
 						}
 						else
 						{
@@ -130,7 +150,7 @@ pipeline
 												
 						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS && env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS.toString().isNumber())
 						{
-							final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS as int
+							HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS as int
 						}
 						else
 						{
@@ -139,7 +159,7 @@ pipeline
 						
 						if (env.HCMX_SUB_CANCEL_DELAY_SECONDS && env.HCMX_SUB_CANCEL_DELAY_SECONDS.toString().isNumber())
 						{
-							final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS as int
+							HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS as int
 						}
 						else
 						{
@@ -158,7 +178,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_DATACENTER)
 						{
-							final String HCMX_VCENTER_DATACENTER = env.HCMX_VCENTER_DATACENTER
+							HCMX_VCENTER_DATACENTER = env.HCMX_VCENTER_DATACENTER
 						}
 						else
 						{
@@ -167,7 +187,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_VM_TEMPLATE)
 						{
-							final String HCMX_VCENTER_VM_TEMPLATE = env.HCMX_VCENTER_VM_TEMPLATE
+							HCMX_VCENTER_VM_TEMPLATE = env.HCMX_VCENTER_VM_TEMPLATE
 						}
 						else
 						{
@@ -176,7 +196,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_VM_CUSTOMSPEC)
 						{
-							final String HCMX_VCENTER_VM_CUSTOMSPEC = env.HCMX_VCENTER_VM_CUSTOMSPEC
+							HCMX_VCENTER_VM_CUSTOMSPEC = env.HCMX_VCENTER_VM_CUSTOMSPEC
 						}
 						else
 						{
@@ -185,7 +205,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_VMNAME_PREFIX)
 						{
-							final String HCMX_VCENTER_VMNAME_PREFIX = env.HCMX_VCENTER_VMNAME_PREFIX
+							HCMX_VCENTER_VMNAME_PREFIX = env.HCMX_VCENTER_VMNAME_PREFIX
 						}
 						else
 						{
@@ -194,7 +214,7 @@ pipeline
                         
 						if (env.HCMX_VCENTER_VM_MEMORY_SIZE && env.HCMX_VCENTER_VM_MEMORY_SIZE.toString().isNumber())
 						{
-							final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE as int
+							HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE as int
 							if (HCMX_VCENTER_VM_MEMORY_SIZE < HCMX_VCENTER_VM_MIN_MEMORY_SIZE || HCMX_VCENTER_VM_MEMORY_SIZE > HCMX_VCENTER_VM_MAX_MEMORY_SIZE )
 							{
 								error "HCMX_VCENTER_VM_MEMORY_SIZE in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE in MB must be <= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE"
@@ -207,7 +227,7 @@ pipeline
 						
 						if (env.HCMX_VCENTER_VM_NUM_CPU && env.HCMX_VCENTER_VM_NUM_CPU.toString().isNumber())
 						{
-							final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU as int
+							HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU as int
 							if (HCMX_VCENTER_VM_NUM_CPU < HCMX_VCENTER_VM_MIN_NUM_CPU || HCMX_VCENTER_VM_NUM_CPU > HCMX_VCENTER_VM_MAX_NUM_CPU )
 							{
 								error "HCMX_VCENTER_VM_NUM_CPU must be >= $HCMX_VCENTER_VM_MIN_NUM_CPU and HCMX_VCENTER_VM_NUM_CPU must be <= $HCMX_VCENTER_VM_MAX_NUM_CPU"
@@ -220,7 +240,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_VM_REQUEST_TITLE)
 						{
-							final String HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
+							HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
 						}
 						else
 						{
@@ -229,7 +249,7 @@ pipeline
                         
 						if(env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION)
 						{
-							final String HCMX_VCENTER_VM_REQUEST_DESCRIPTION = env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION
+							HCMX_VCENTER_VM_REQUEST_DESCRIPTION = env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION
 						}
 						else
 						{
@@ -238,7 +258,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_VM_SUB_NAME)
 						{
-							final String HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
+							HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
 						}
 						else
 						{
@@ -247,7 +267,7 @@ pipeline
 						
 						if(env.HCMX_VCENTER_VM_SUB_DESCRIPTION)
 						{
-							final String HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
+							HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
 						}
 						else
 						{
