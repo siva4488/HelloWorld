@@ -24,7 +24,7 @@ pipeline
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
 		
 		
-		/********** HCMX Offering specific environment variables. In this example, this section is for offering to deploy VMs on vCenter ************/
+		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
 		// VMWare vCenter data center in which VM has to be deployed
 		HCMX_VCENTER_DATACENTER = "CAT"
 		
@@ -41,7 +41,7 @@ pipeline
 		HCMX_VCENTER_VM_MEMORY_SIZE = 1024
 		
 		// Number of CPUs to be used for the deployment of VM
-		HCMX_VCENTER_VM_NUM_CPU = 1
+		HCMX_VCENTER_VM_NUM_CPU = ABCD
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
@@ -94,10 +94,7 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        
-						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
-						
-						if(env.HCMX_SERVER_FQDN)
+                        if(env.HCMX_SERVER_FQDN)
 						{
 							final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
 						}
@@ -105,13 +102,18 @@ pipeline
 						{
 							error "HCMX_SERVER_FQDN cannot be NULL or empty"
 						}
-						println HCMX_SERVER_FQDN
-						if(!HCMX_TENANT_ID)
+						
+						if(env.HCMX_TENANT_ID)
+						{
+							final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
+						}
+						else
 						{
 							error "HCMX_TENANT_ID cannot be NULL or empty"
 						}
 						
-						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS.toString().isNumber())
+												
+						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS && env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS.toString().isNumber())
 						{
 							final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
 						}
@@ -119,54 +121,116 @@ pipeline
 						{
 							error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be an integer"
 						}
-						final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
-						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS												
 						
-						final String HCMX_VCENTER_DATACENTER = env.HCMX_VCENTER_DATACENTER
-                        final String HCMX_VCENTER_VM_TEMPLATE = env.HCMX_VCENTER_VM_TEMPLATE
-						final String HCMX_VCENTER_VM_CUSTOMSPEC = env.HCMX_VCENTER_VM_CUSTOMSPEC
-						final String HCMX_VCENTER_VMNAME_PREFIX = env.HCMX_VCENTER_VMNAME_PREFIX
-                        final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE
-						final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU
-						final String HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
-						final String HCMX_VCENTER_VM_REQUEST_DESCRIPTION = env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION
-                        final String HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
-						final String HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
+						if (env.HCMX_SUB_CANCEL_DELAY_SECONDS && env.HCMX_SUB_CANCEL_DELAY_SECONDS.toString().isNumber())
+						{
+							final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
+						}
+						else
+						{
+							error "HCMX_SUB_CANCEL_DELAY_SECONDS must be an integer"
+						}
+						
+						if (env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS && env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS.toString().isNumber())
+						{
+							final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
+						}
+						else
+						{
+							error "HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS must be an integer"
+						}
 						
 						
-						
-						if(!HCMX_VCENTER_DATACENTER)
+						if(env.HCMX_VCENTER_DATACENTER)
+						{
+							final String HCMX_VCENTER_DATACENTER = env.HCMX_VCENTER_DATACENTER
+						}
+						else
 						{
 							error "HCMX_VCENTER_DATACENTER cannot be NULL or empty"
+						}											
+						
+						if(env.HCMX_VCENTER_VM_TEMPLATE)
+						{
+							final String HCMX_VCENTER_VM_TEMPLATE = env.HCMX_VCENTER_VM_TEMPLATE
 						}
-						if(!HCMX_VCENTER_VM_TEMPLATE)
+						else
 						{
 							error "HCMX_VCENTER_VM_TEMPLATE cannot be NULL or empty"
 						}
-						if(!HCMX_VCENTER_VM_CUSTOMSPEC)
+						
+						if(env.HCMX_VCENTER_VM_CUSTOMSPEC)
+						{
+							final String HCMX_VCENTER_VM_CUSTOMSPEC = env.HCMX_VCENTER_VM_CUSTOMSPEC
+						}
+						else
 						{
 							error "HCMX_VCENTER_VM_CUSTOMSPEC cannot be NULL or empty"
 						}
-						if(!HCMX_VCENTER_VMNAME_PREFIX)
+						
+						if(env.HCMX_VCENTER_VMNAME_PREFIX)
+						{
+							final String HCMX_VCENTER_VMNAME_PREFIX = env.HCMX_VCENTER_VMNAME_PREFIX
+						}
+						else
 						{
 							error "HCMX_VCENTER_VMNAME_PREFIX cannot be NULL or empty"
 						}
-						if(!HCMX_VCENTER_VM_REQUEST_TITLE)
+                        
+						if (env.HCMX_VCENTER_VM_MEMORY_SIZE && env.HCMX_VCENTER_VM_MEMORY_SIZE.toString().isNumber())
+						{
+							final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE
+						}
+						else
+						{
+							error "HCMX_VCENTER_VM_MEMORY_SIZE must be an integer"
+						}
+						
+						if (env.HCMX_VCENTER_VM_NUM_CPU && env.HCMX_VCENTER_VM_NUM_CPU.toString().isNumber())
+						{
+							final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU
+						}
+						else
+						{
+							error "HCMX_VCENTER_VM_NUM_CPU must be an integer"
+						}
+						
+						if(env.HCMX_VCENTER_VM_REQUEST_TITLE)
+						{
+							final String HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
+						}
+						else
 						{
 							error "HCMX_VCENTER_VM_REQUEST_TITLE cannot be NULL or empty"
 						}
-						if(!HCMX_VCENTER_VM_REQUEST_DESCRIPTION)
+                        
+						if(env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION)
+						{
+							final String HCMX_VCENTER_VM_REQUEST_DESCRIPTION = env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION
+						}
+						else
 						{
 							error "HCMX_VCENTER_VM_REQUEST_DESCRIPTION cannot be NULL or empty"
 						}
-						if(!HCMX_VCENTER_VM_SUB_NAME)
+						
+						if(env.HCMX_VCENTER_VM_SUB_NAME)
+						{
+							final String HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
+						}
+						else
 						{
 							error "HCMX_VCENTER_VM_SUB_NAME cannot be NULL or empty"
 						}
-						if(!HCMX_VCENTER_VM_SUB_DESCRIPTION)
+						
+						if(env.HCMX_VCENTER_VM_SUB_DESCRIPTION)
+						{
+							final String HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
+						}
+						else
 						{
 							error "HCMX_VCENTER_VM_SUB_DESCRIPTION cannot be NULL or empty"
-						}
+						}					
+						
 						
 						error "exit"
 						
