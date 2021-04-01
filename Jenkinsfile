@@ -18,7 +18,7 @@ pipeline
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "180"
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
@@ -74,7 +74,9 @@ pipeline
 				sh 'mkdir build'
 				sh 'cp HelloWorld.sh build/HelloWorld.sh'
 				sh 'chmod 555 build/HelloWorld.sh'
-				sh "echo version = 1.0.${env.BUILD_ID} >> build/version.txt"				
+				sh "echo version = 1.0.${env.BUILD_ID} >> build/version.txt"
+				sh "env | grep -i proxy"
+				error "Out"
             }
         }
         stage('Test') 
@@ -267,6 +269,10 @@ pipeline
 							error "HCMX_VCENTER_VM_SUB_DESCRIPTION cannot be NULL or empty"
 						}				
 						
+						if (HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS >= HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS)
+						{
+							error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be less than HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS."
+						}
 						
 						echo "HCMX: Get SMAX Auth Token"
 						// HCMX REST APIs require SMAX AUTH TOKEN and TENANT ID to perform any POST, PUT and GET operations.
