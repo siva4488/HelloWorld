@@ -32,11 +32,12 @@ pipeline
 		HCMX_VCENTER_DATACENTER = "CAT"
 		
 		//VMWare vCenter template to be used for deployment of VM
-		//HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
-		HCMX_VCENTER_VM_TEMPLATE = ""
+		HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
+		
 		
 		//VMWare vCenter custom spec to be used for deployment of VM
-		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
+		//HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
+		HCMX_VCENTER_VM_CUSTOMSPEC = ""
 		
 		//VM name prefix to be used during deployment of VM
 		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
