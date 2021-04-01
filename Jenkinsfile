@@ -14,7 +14,7 @@ pipeline
 
 		// Define interval in seconds to check status of VM deployment request in HCMX
 		// VM deployment may take longer than 10 minutes depending on cloud provider.
-		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
+		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = "ab"
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
