@@ -50,10 +50,10 @@ pipeline
 		HCMX_VCENTER_VM_REQUEST_DESCRIPTION = "a"
 		
 		// HCMX subscription name. Each service deployed through HCMX has a subscription associated with it.
-		HCMX_VCENTER_VM_SUB_NAME = ""
+		HCMX_VCENTER_VM_SUB_NAME = "a"
 		
 		// HCMX subscription description
-		HCMX_VCENTER_VM_SUB_DESCRIPTION = "Hello World Test VM"		
+		HCMX_VCENTER_VM_SUB_DESCRIPTION = ""		
 		
     }
 
