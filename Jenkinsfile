@@ -107,6 +107,8 @@ pipeline
 						// Maximum number of CPUs that can be specified to deploy VM
 						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32
 						
+						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
+						
 						if(env.HCMX_SERVER_FQDN)
 						{
 							final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
@@ -146,7 +148,7 @@ pipeline
 						
 						if (env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS && env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS.toString().isNumber())
 						{
-							final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
+							HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
 						}
 						else
 						{
