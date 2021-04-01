@@ -44,16 +44,16 @@ pipeline
 		HCMX_VCENTER_VM_NUM_CPU = "1"		
 		
 		// Request title displayed in HCMX
-		HCMX_VCENTER_VM_REQUEST_TITLE = "a"
+		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
 		
 		// Request description to deploy a new VM for testing the build
-		HCMX_VCENTER_VM_REQUEST_DESCRIPTION = "a"
+		HCMX_VCENTER_VM_REQUEST_DESCRIPTION = "Need VM to test Hello World Application"
 		
 		// HCMX subscription name. Each service deployed through HCMX has a subscription associated with it.
-		HCMX_VCENTER_VM_SUB_NAME = "a"
+		HCMX_VCENTER_VM_SUB_NAME = "Hello World Test VM"
 		
 		// HCMX subscription description
-		HCMX_VCENTER_VM_SUB_DESCRIPTION = ""		
+		HCMX_VCENTER_VM_SUB_DESCRIPTION = "Hello World Test VM"		
 		
     }
 
