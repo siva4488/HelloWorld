@@ -105,9 +105,8 @@ pipeline
 						final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
 													
 						// Maximum number of CPUs that can be specified to deploy VM
-						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32
+						final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32			
 						
-						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
 						
 						if(env.HCMX_SERVER_FQDN)
 						{
@@ -130,7 +129,7 @@ pipeline
 												
 						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS && env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS.toString().isNumber())
 						{
-							final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
+							final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS as int
 						}
 						else
 						{
@@ -139,7 +138,7 @@ pipeline
 						
 						if (env.HCMX_SUB_CANCEL_DELAY_SECONDS && env.HCMX_SUB_CANCEL_DELAY_SECONDS.toString().isNumber())
 						{
-							final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
+							final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS as int
 						}
 						else
 						{
@@ -148,7 +147,7 @@ pipeline
 						
 						if (env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS && env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS.toString().isNumber())
 						{
-							HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS
+							final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS as int
 						}
 						else
 						{
@@ -194,7 +193,7 @@ pipeline
                         
 						if (env.HCMX_VCENTER_VM_MEMORY_SIZE && env.HCMX_VCENTER_VM_MEMORY_SIZE.toString().isNumber())
 						{
-							final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE
+							final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE as int
 							if (HCMX_VCENTER_VM_MEMORY_SIZE < HCMX_VCENTER_VM_MIN_MEMORY_SIZE || HCMX_VCENTER_VM_MEMORY_SIZE > HCMX_VCENTER_VM_MAX_MEMORY_SIZE )
 							{
 								error "HCMX_VCENTER_VM_MEMORY_SIZE in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE in MB must be <= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE"
@@ -207,7 +206,7 @@ pipeline
 						
 						if (env.HCMX_VCENTER_VM_NUM_CPU && env.HCMX_VCENTER_VM_NUM_CPU.toString().isNumber())
 						{
-							final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU
+							final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU as int
 							if (HCMX_VCENTER_VM_NUM_CPU < HCMX_VCENTER_VM_MIN_NUM_CPU || HCMX_VCENTER_VM_NUM_CPU > HCMX_VCENTER_VM_MAX_NUM_CPU )
 							{
 								error "HCMX_VCENTER_VM_NUM_CPU must be >= $HCMX_VCENTER_VM_MIN_NUM_CPU and HCMX_VCENTER_VM_NUM_CPU must be <= $HCMX_VCENTER_VM_MAX_NUM_CPU"
