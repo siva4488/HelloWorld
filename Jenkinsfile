@@ -23,6 +23,16 @@ pipeline
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
 		
+		USE_PROXY = "NO"
+		
+		PROXY_HOST = "web-proxy.us.softwaregrp.net"
+		
+		PROXY_PORT = "8080"
+		
+		PROXY_PROTOCOL = "https"
+		
+		PROXY_REQUIRES_CREDENTIALS = "YES"
+		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
 		// VMWare vCenter data center in which VM has to be deployed
@@ -76,7 +86,6 @@ pipeline
 				sh 'chmod 555 build/HelloWorld.sh'
 				sh "echo version = 1.0.${env.BUILD_ID} >> build/version.txt"
 				sh "env"
-				sh "curl www.google.com"
 				error "Out"
             }
         }
@@ -95,7 +104,7 @@ pipeline
 				
 				script 
 				{
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'HCMX_USER', passwordVariable: 'HCMX_USER_PSW']]) 
 					{
                         
 						// Minimum memory size in MB that must be specified to deploy VMs
@@ -115,6 +124,11 @@ pipeline
 						int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
 						int HCMX_SUB_CANCEL_DELAY_SECONDS = 0						
 						int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
+						String USE_PROXY
+						String PROXY_HOST
+						String PROXY_PORT
+						String PROXY_PROTOCOL
+						String PROXY_REQUIRES_CREDENTIALS
 						
 						String HCMX_VCENTER_DATACENTER
 						String HCMX_VCENTER_VM_TEMPLATE
@@ -170,6 +184,61 @@ pipeline
 						else
 						{
 							error "HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS must be an integer"
+						}
+						
+						if(env.USE_PROXY)
+						{
+							USE_PROXY = env.USE_PROXY
+							if (USE_PROXY && (!(USE_PROXY.equalsIgnoreCase("YES")) && !(USE_PROXY.equalsIgnoreCase("NO"))))
+							{
+								error "USE_PROXY must be set to either YES or NO"
+							}
+						}
+						else
+						{
+							error "USE_PROXY cannot be NULL or empty"
+						}
+						
+						if (USE_PROXY && USE_PROXY.equalsIgnoreCase("YES"))
+						{
+							if(env.PROXY_HOST)
+							{
+								PROXY_HOST = env.PROXY_HOST
+							}
+							else
+							{
+								error "PROXY_HOST cannot be NULL or empty when USE_PROXY is set to yes"
+							}
+						
+							if(env.PROXY_PORT && env.PROXY_PORT.toString().isNumber())
+							{
+								PROXY_PORT = env.PROXY_PORT as int
+							}
+							else
+							{
+								error "PROXY_PORT cannot be NULL or empty when USE_PROXY is set to yes"
+							}
+						
+							if(env.PROXY_PROTOCOL)
+							{
+								PROXY_PROTOCOL = env.PROXY_PROTOCOL
+							}
+							else
+							{
+								error "PROXY_PROTOCOL cannot be NULL or empty when USE_PROXY is set to yes"
+							}						
+							if(env.PROXY_REQUIRES_CREDENTIALS)
+							{
+								PROXY_REQUIRES_CREDENTIALS = env.PROXY_REQUIRES_CREDENTIALS
+								if (PROXY_REQUIRES_CREDENTIALS && (!(PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("YES")) && !(PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
+								{
+									error "PROXY_REQUIRES_CREDENTIALS must be set to either YES or NO"
+								}
+							}
+							else
+							{
+								error "PROXY_REQUIRES_CREDENTIALS cannot be NULL or empty when USE_PROXY is set to yes"
+							}
 						}
 						
 						if(env.HCMX_VCENTER_DATACENTER)
@@ -279,24 +348,30 @@ pipeline
 						// HCMX REST APIs require SMAX AUTH TOKEN and TENANT ID to perform any POST, PUT and GET operations.
 						// Build HCMX Authentication Token URL
                         final String HCMX_AUTH_URL = "https://" + HCMX_SERVER_FQDN + "/auth/authentication-endpoint/authenticate/token?TENANTID=" + HCMX_TENANT_ID
+						String SMAX_AUTH_TOKEN
+						int getTokenResCode
 						
 						// Submit a REST API call to HCMX to get SMAX_AUTH_TOKEN
-						
-                        final def (String SMAX_AUTH_TOKEN, int getTokenResCode) = sh(script: '''set +x;curl -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$USERNAME"\'","password":"\'"$PASSWORD"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
+						if (USE_PROXY.equalsIgnoreCase("NO"))
+						{
+							(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set +x;curl -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
+						}
 						
 						if (getTokenResCode == 200 && SMAX_AUTH_TOKEN && SMAX_AUTH_TOKEN.trim())
 						{											
 							echo "HCMX: Get person ID"
 							// Build HCMX Get Person ID URL
-							//final String HCMX_GET_PERSON_ID_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Person?filter=(Upn=%27" + USERNAME + "%27)&layout=Id"
+							//final String HCMX_GET_PERSON_ID_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Person?filter=(Upn=%27" + HCMX_USER + "%27)&layout=Id"
 							final String HCMX_GET_PERSON_ID_URL_1 = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Person?filter=(Upn=%27"
 							final String HCMX_GET_PERSON_ID_URL_2 = "%27)&layout=Id"
-							
+							String personIDResponse
+							int personIDResCode
 							
 							// Submit a REST API call to HCMX to get Person ID
-							//final def (String personIDResponse, int personIDResCode)  = sh(script: "set +x;curl -s -w '\\n%{response_code}' \"$HCMX_GET_PERSON_ID_URL\" -k -H \"Content-Type: application/json\" -H \"Accept: application/json\" -H \"Accept: text/plain\" --cookie \"TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN=$SMAX_AUTH_TOKEN\"", returnStdout: true).trim().tokenize("\n")
-							
-							final def (String personIDResponse, int personIDResCode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + USERNAME + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+							if (USE_PROXY.equalsIgnoreCase("NO"))
+							{
+								(personIDResponse, personIDResCode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + HCMX_USER + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+							}
 							
 							if (personIDResCode == 200 && personIDResponse && personIDResponse.trim()) 
 							{
@@ -310,11 +385,15 @@ pipeline
 								
 								Date curDate = new Date()
 								long epochMilliSeconds = curDate.getTime()
-												
+								String depVMResponse
+								int depVMResponseCode
 								
-								// Submit a REST API call to HCMX to deploy a new test server VM 
-								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
-								
+								// Submit a REST API call to HCMX to deploy a new test server VM								
+								if (USE_PROXY.equalsIgnoreCase("NO"))
+								{
+									(depVMResponse, depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
+								}
+																
 												
 								if (depVMResponseCode == 200 && depVMResponse && depVMResponse.trim()) 
 								{
@@ -338,8 +417,12 @@ pipeline
 										}
 										// Submit a REST API call to HCMX to get status of VM deployment request
 										echo "HCMX: Get request status until it is Closed"
-										(reqResponse, reqCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-																				
+										
+										if (USE_PROXY.equalsIgnoreCase("NO"))
+										{
+											(reqResponse, reqCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+										}
+										
 										if (reqCode == 200 && reqResponse && reqResponse.trim()) 
 										{
 											def reqResponseJSON = new groovy.json.JsonSlurperClassic().parseText(reqResponse)
@@ -367,8 +450,14 @@ pipeline
 									// Build HCMX Get subscription URL using the request ID that was obtained in earlier steps.
 									final String HCMX_GET_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Subscription?filter=(InitiatedByRequest=%27" + HCMX_REQUEST_ID + "%27%20and%20Status=%27Active%27)&layout=Id"
 									
+									String subResponse
+									int subRescode
 									// Submit a REST API call to HCMX to get subscription ID
-									final def (String subResponse, int subRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+									if (USE_PROXY.equalsIgnoreCase("NO"))
+									{
+										(subResponse, subRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+									}
+									
 									if (subRescode == 200 && subResponse && subResponse.trim()) 
 									{
 										def subResponseJSON = new groovy.json.JsonSlurperClassic().parseText(subResponse)									
@@ -379,8 +468,14 @@ pipeline
 										// Prepare HCMX Get service instance URL using the subscription ID that was obtained in earlier steps.
 										final String HCMX_GET_SVCINSTANCE_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/cloud-service/getServiceInstance/" + subID
 										
+										String svcInstResponse
+										int svcInstRescode
 										// Submit a REST API call to HCMX to get a list of service instances associated with the subscription
-										final def (String svcInstResponse, int svcInstRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+										if (USE_PROXY.equalsIgnoreCase("NO"))
+										{	
+											(svcInstResponse, svcInstRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+										}
+										
 										if (svcInstRescode == 200 && svcInstResponse && svcInstResponse.trim()) 
 										{
 											def svcInstResponseJSON = new groovy.json.JsonSlurperClassic().parseText(svcInstResponse)
