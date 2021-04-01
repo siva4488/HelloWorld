@@ -36,11 +36,11 @@ pipeline
 		
 		
 		//VMWare vCenter custom spec to be used for deployment of VM
-		//HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
-		HCMX_VCENTER_VM_CUSTOMSPEC = ""
-		
+		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
+				
 		//VM name prefix to be used during deployment of VM
-		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
+		//HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
+		HCMX_VCENTER_VMNAME_PREFIX = ""
 		
 		// Memory size in MB to be used for the deployment of VM
 		HCMX_VCENTER_VM_MEMORY_SIZE = "1024"
