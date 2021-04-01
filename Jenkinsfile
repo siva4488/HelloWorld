@@ -41,7 +41,7 @@ pipeline
 		HCMX_VCENTER_VM_MEMORY_SIZE = 1024
 		
 		// Number of CPUs to be used for the deployment of VM
-		HCMX_VCENTER_VM_NUM_CPU = ABCD
+		HCMX_VCENTER_VM_NUM_CPU = "ABCD"
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
