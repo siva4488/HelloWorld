@@ -3,7 +3,8 @@ pipeline
     agent any
     environment 
 	{
-        // HCMX Server's fully qualified domain name
+        /********** GLOBAL environment variables applicable to all HCMX offerings ************/
+		// HCMX Server's fully qualified domain name
 		HCMX_SERVER_FQDN = "catvmlmpoc1.ftc.hpeswlab.net"
         
 		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
@@ -22,9 +23,37 @@ pipeline
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
 		
-		// Prefix deployed VM name with the setting in HCMX_DEPLOYED_VM_PREFIX
-		HCMX_DEPLOYED_VM_PREFIX = "TestHelloWorldVM"
 		
+		/********** HCMX Offering specific environment variables. In this example, this section is for offering to deploy VMs on vCenter ************/
+		// VMWare vCenter data center in which VM has to be deployed
+		HCMX_VCENTER_DATACENTER = "CAT"
+		
+		//VMWare vCenter template to be used for deployment of VM
+		HCMX_VCENTER_VM_TEMPLATE = "catvmlmdepvm_t"
+		
+		//VMWare vCenter custom spec to be used for deployment of VM
+		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
+		
+		//VM name prefix to be used during deployment of VM
+		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
+		
+		// Memory size in MB to be used for the deployment of VM
+		HCMX_VCENTER_VM_MEMORY_SIZE = 1024
+		
+		// Number of CPUs to be used for the deployment of VM
+		HCMX_VCENTER_VM_NUM_CPU = 1
+		
+		// Business justification to deploy a new VM for testing the build
+		HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION = "Need VM to test Hello World Application"
+		
+		// HCMX subscription name. Each service deployed through HCMX has a subscription associated with it.
+		HCMX_VCENTER_VM_SUB_NAME = "Hello World Test VM"
+		
+		// HCMX subscription description
+		HCMX_VCENTER_VM_SUB_DESCRIPTION = "Hello World Test VM"
+		
+		// Request title displayed in HCMX
+		HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL = "Request to deploy a new VM to test Hello World VM"
     }
 
     stages 
@@ -64,12 +93,23 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
+                        final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
+                        final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+						final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
 						final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
 						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS												
-						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
-                        final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
-						final String HCMX_DEPLOYED_VM_PREFIX = env.HCMX_DEPLOYED_VM_PREFIX
+						
+						final String HCMX_VCENTER_DATACENTER = env.HCMX_VCENTER_DATACENTER
+                        final String HCMX_VCENTER_VM_TEMPLATE = env.HCMX_VCENTER_VM_TEMPLATE
+						final String HCMX_VCENTER_VM_CUSTOMSPEC = env.HCMX_VCENTER_VM_CUSTOMSPEC
+						final String HCMX_VCENTER_VMNAME_PREFIX = env.HCMX_VCENTER_VMNAME_PREFIX
+                        final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE
+						final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU
+						final String HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION = env.HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION
+                        final String HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
+						final String HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
+						final String HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL = env.HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL
+						
 						
 						
 						echo "HCMX: Get SMAX Auth Token"
@@ -110,7 +150,7 @@ pipeline
 												
 								
 								// Submit a REST API call to HCMX to deploy a new test server VM 
-								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''" ,"StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Optionfda5ee32d7d24a63cb0035926c667e8b_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"CAT\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"catvmlmdep_t***CentOS 4/5 or later (64-bit)\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_DEPLOYED_VM_PREFIX + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"(Ts)catvmLinuxDHCP\\",\\"Optionfda5ee32d7d24a63cb0035926c667e8b_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false}}]}","Description":"<p>hello world test vm</p>","RelatedSubscriptionName":"HelloWorldVM","RelatedSubscriptionDescription":"<p>HelloWorldVM</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"Request: vCenter Compute - Deploy VM from Template"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
+								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
 								
 												
 								if (depVMResponseCode == 200 && depVMResponse && depVMResponse.trim()) 
