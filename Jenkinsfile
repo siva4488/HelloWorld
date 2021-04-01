@@ -106,7 +106,7 @@ pipeline
 							error "HCMX_TENANT_ID cannot be NULL or empty"
 						}
 						
-						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS instanceof String)
+						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS.toString().isNumber())
 						{
 							final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
 						}
