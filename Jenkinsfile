@@ -5,7 +5,7 @@ pipeline
 	{
         /********** GLOBAL environment variables applicable to all HCMX offerings ************/
 		// HCMX Server's fully qualified domain name
-		HCMX_SERVER_FQDN = ""
+		HCMX_SERVER_FQDN = "catvmlmpoc1.ftc.hpeswlab.net"
         
 		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
 		// HCMX will be used to provision VMs on which testing of the new build will be performed.
@@ -43,17 +43,18 @@ pipeline
 		// Number of CPUs to be used for the deployment of VM
 		HCMX_VCENTER_VM_NUM_CPU = 1
 		
-		// Business justification to deploy a new VM for testing the build
-		HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION = "Need VM to test Hello World Application"
+		// Request title displayed in HCMX
+		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
+		
+		// Request description to deploy a new VM for testing the build
+		HCMX_VCENTER_VM_REQUEST_DESCRIPTION = "Need VM to test Hello World Application"
 		
 		// HCMX subscription name. Each service deployed through HCMX has a subscription associated with it.
 		HCMX_VCENTER_VM_SUB_NAME = "Hello World Test VM"
 		
 		// HCMX subscription description
-		HCMX_VCENTER_VM_SUB_DESCRIPTION = "Hello World Test VM"
+		HCMX_VCENTER_VM_SUB_DESCRIPTION = "Hello World Test VM"		
 		
-		// Request title displayed in HCMX
-		HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL = "Request to deploy a new VM to test Hello World App"
     }
 
     stages 
@@ -93,9 +94,26 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        final String HCMX_SERVER_FQDN = null
-						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID                        
-						final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
+                        final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
+						
+						if(!HCMX_SERVER_FQDN)
+						{
+							error "HCMX_SERVER_FQDN cannot be NULL or empty"
+						}
+						if(!HCMX_TENANT_ID)
+						{
+							error "HCMX_TENANT_ID cannot be NULL or empty"
+						}
+						
+						if (env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS instance of Integer)
+						{
+							final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
+						}
+						else
+						{
+							error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be an integer"
+						}
 						final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
 						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS												
 						
@@ -105,15 +123,46 @@ pipeline
 						final String HCMX_VCENTER_VMNAME_PREFIX = env.HCMX_VCENTER_VMNAME_PREFIX
                         final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE
 						final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU
-						final String HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION = env.HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION
+						final String HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
+						final String HCMX_VCENTER_VM_REQUEST_DESCRIPTION = env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION
                         final String HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
 						final String HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
-						final String HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL = env.HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL
 						
-						if(!HCMX_SERVER_FQDN)
+						
+						
+						if(!HCMX_VCENTER_DATACENTER)
 						{
-							error "HCMX Server FQDN cannot be NULL or empty"
+							error "HCMX_VCENTER_DATACENTER cannot be NULL or empty"
 						}
+						if(!HCMX_VCENTER_VM_TEMPLATE)
+						{
+							error "HCMX_VCENTER_VM_TEMPLATE cannot be NULL or empty"
+						}
+						if(!HCMX_VCENTER_VM_CUSTOMSPEC)
+						{
+							error "HCMX_VCENTER_VM_CUSTOMSPEC cannot be NULL or empty"
+						}
+						if(!HCMX_VCENTER_VMNAME_PREFIX)
+						{
+							error "HCMX_VCENTER_VMNAME_PREFIX cannot be NULL or empty"
+						}
+						if(!HCMX_VCENTER_VM_REQUEST_TITLE)
+						{
+							error "HCMX_VCENTER_VM_REQUEST_TITLE cannot be NULL or empty"
+						}
+						if(!HCMX_VCENTER_VM_REQUEST_DESCRIPTION)
+						{
+							error "HCMX_VCENTER_VM_REQUEST_DESCRIPTION cannot be NULL or empty"
+						}
+						if(!HCMX_VCENTER_VM_SUB_NAME)
+						{
+							error "HCMX_VCENTER_VM_SUB_NAME cannot be NULL or empty"
+						}
+						if(!HCMX_VCENTER_VM_SUB_DESCRIPTION)
+						{
+							error "HCMX_VCENTER_VM_SUB_DESCRIPTION cannot be NULL or empty"
+						}
+						
 						error "exit"
 						
 						echo "HCMX: Get SMAX Auth Token"
@@ -154,7 +203,7 @@ pipeline
 												
 								
 								// Submit a REST API call to HCMX to deploy a new test server VM 
-								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_BUSINESS_JUSTIFICATION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
+								final def (String depVMResponse, int depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
 								
 												
 								if (depVMResponseCode == 200 && depVMResponse && depVMResponse.trim()) 
