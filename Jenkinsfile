@@ -76,6 +76,7 @@ pipeline
 				sh 'chmod 555 build/HelloWorld.sh'
 				sh "echo version = 1.0.${env.BUILD_ID} >> build/version.txt"
 				sh "env"
+				sh "curl www.google.com"
 				error "Out"
             }
         }
