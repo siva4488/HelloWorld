@@ -93,7 +93,7 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+                        final String HCMX_SERVER_FQDN = null
 						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID                        
 						final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
 						final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
