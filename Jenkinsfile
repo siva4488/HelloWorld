@@ -41,7 +41,7 @@ pipeline
 		HCMX_VCENTER_VM_MEMORY_SIZE = "1024"
 		
 		// Number of CPUs to be used for the deployment of VM
-		HCMX_VCENTER_VM_NUM_CPU = "1"
+		HCMX_VCENTER_VM_NUM_CPU = "1"		
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
@@ -94,7 +94,20 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        if(env.HCMX_SERVER_FQDN)
+                        
+						// Minimum memory size in MB that must be specified to deploy VMs
+						final int HCMX_VCENTER_VM_MIN_MEMORY_SIZE = "4"
+		
+						// Maximum memory size in MB that can be specified to deploy VMs
+						final int HCMX_VCENTER_VM_MAX_MEMORY_SIZE = "6275072"
+						
+						// Minimum number of CPUs that must be specified to deploy VM
+						final int HCMX_VCENTER_VM_MIN_NUM_CPU = "1"
+													
+						// Maximum number of CPUs that can be specified to deploy VM
+						final int HCMX_VCENTER_VM_MAX_NUM_CPU = "32"
+						
+						if(env.HCMX_SERVER_FQDN)
 						{
 							final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
 						}
@@ -180,6 +193,10 @@ pipeline
 						if (env.HCMX_VCENTER_VM_MEMORY_SIZE && env.HCMX_VCENTER_VM_MEMORY_SIZE.toString().isNumber())
 						{
 							final int HCMX_VCENTER_VM_MEMORY_SIZE = env.HCMX_VCENTER_VM_MEMORY_SIZE
+							if (HCMX_VCENTER_VM_MEMORY_SIZE < HCMX_VCENTER_VM_MIN_MEMORY_SIZE || HCMX_VCENTER_VM_MEMORY_SIZE > HCMX_VCENTER_VM_MAX_MEMORY_SIZE )
+							{
+								error "HCMX_VCENTER_VM_MEMORY_SIZE in MB must be >= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE and HCMX_VCENTER_VM_MEMORY_SIZE in MB must be <= $HCMX_VCENTER_VM_MIN_MEMORY_SIZE"
+							}							
 						}
 						else
 						{
@@ -189,6 +206,10 @@ pipeline
 						if (env.HCMX_VCENTER_VM_NUM_CPU && env.HCMX_VCENTER_VM_NUM_CPU.toString().isNumber())
 						{
 							final int HCMX_VCENTER_VM_NUM_CPU = env.HCMX_VCENTER_VM_NUM_CPU
+							if (HCMX_VCENTER_VM_NUM_CPU < HCMX_VCENTER_VM_MIN_NUM_CPU || HCMX_VCENTER_VM_NUM_CPU > HCMX_VCENTER_VM_MAX_NUM_CPU )
+							{
+								error "HCMX_VCENTER_VM_NUM_CPU must be >= $HCMX_VCENTER_VM_MIN_NUM_CPU and HCMX_VCENTER_VM_NUM_CPU must be <= $HCMX_VCENTER_VM_MAX_NUM_CPU"
+							}		
 						}
 						else
 						{
