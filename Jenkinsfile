@@ -42,7 +42,7 @@ pipeline
 		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
 				
 		// Memory size in MB to be used for the deployment of VM
-		HCMX_VCENTER_VM_MEMORY_SIZE = "1000000000000000"
+		HCMX_VCENTER_VM_MEMORY_SIZE = "62750720"
 		
 		// Number of CPUs to be used for the deployment of VM
 		HCMX_VCENTER_VM_NUM_CPU = "1"		
