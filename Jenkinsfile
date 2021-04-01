@@ -93,8 +93,8 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
                         final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID                        
 						final int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = env.HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
 						final int HCMX_SUB_CANCEL_DELAY_SECONDS = env.HCMX_SUB_CANCEL_DELAY_SECONDS
 						final int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS												
@@ -110,7 +110,11 @@ pipeline
 						final String HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
 						final String HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL = env.HCMX_VCENTER_VM_REQUEST_DISPLAY_LABEL
 						
-						
+						if(!HCMX_SERVER_FQDN)
+						{
+							error "HCMX Server FQDN cannot be NULL or empty"
+						}
+						error "exit"
 						
 						echo "HCMX: Get SMAX Auth Token"
 						// HCMX REST APIs require SMAX AUTH TOKEN and TENANT ID to perform any POST, PUT and GET operations.
