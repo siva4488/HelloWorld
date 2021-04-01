@@ -14,7 +14,7 @@ pipeline
 
 		// Define interval in seconds to check status of VM deployment request in HCMX
 		// VM deployment may take longer than 10 minutes depending on cloud provider.
-		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = "ab"
+		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
@@ -94,13 +94,18 @@ pipeline
 				{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'HCMXUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) 
 					{
-                        final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+                        
 						final String HCMX_TENANT_ID = env.HCMX_TENANT_ID
 						
-						if(!HCMX_SERVER_FQDN)
+						if(env.HCMX_SERVER_FQDN)
+						{
+							final String HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+						}
+						else
 						{
 							error "HCMX_SERVER_FQDN cannot be NULL or empty"
 						}
+						println HCMX_SERVER_FQDN
 						if(!HCMX_TENANT_ID)
 						{
 							error "HCMX_TENANT_ID cannot be NULL or empty"
