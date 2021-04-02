@@ -23,15 +23,15 @@ pipeline
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
 		
-		USE_PROXY = "NO"
+		USE_PROXY = "YES"
 		
 		PROXY_HOST = "web-proxy.us.softwaregrp.net"
 		
 		PROXY_PORT = "8080"
 		
-		PROXY_PROTOCOL = "https"
+		PROXY_PROTOCOL = "http"
 		
-		PROXY_REQUIRES_CREDENTIALS = "YES"
+		PROXY_REQUIRES_CREDENTIALS = "NO"
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
@@ -127,7 +127,7 @@ pipeline
 						String PROXY_PORT
 						String PROXY_PROTOCOL
 						String PROXY_REQUIRES_CREDENTIALS
-						
+												
 						String HCMX_VCENTER_DATACENTER
 						String HCMX_VCENTER_VM_TEMPLATE
 						String HCMX_VCENTER_VM_CUSTOMSPEC
@@ -138,6 +138,8 @@ pipeline
 						String HCMX_VCENTER_VM_REQUEST_DESCRIPTION
 						String HCMX_VCENTER_VM_SUB_NAME
 						String HCMX_VCENTER_VM_SUB_DESCRIPTION
+						
+						String curlCMD = "curl"
 						
 						if(env.HCMX_SERVER_FQDN)
 						{
@@ -237,6 +239,11 @@ pipeline
 							{
 								error "PROXY_REQUIRES_CREDENTIALS cannot be NULL or empty when USE_PROXY is set to yes"
 							}
+							curlCMD = "curl --proxy \""+ PROXY_PROTOCOL + "://" + PROXY_HOST + ":" + PROXY_PORT +"\""
+						}
+						else
+						{
+							curlCMD = "curl"
 						}
 						
 						if(env.HCMX_VCENTER_DATACENTER)
@@ -350,9 +357,9 @@ pipeline
 						int getTokenResCode
 						
 						// Submit a REST API call to HCMX to get SMAX_AUTH_TOKEN
-						if (USE_PROXY.equalsIgnoreCase("NO"))
+						if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 						{
-							(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set +x;curl -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
+							(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
 						}
 						
 						if (getTokenResCode == 200 && SMAX_AUTH_TOKEN && SMAX_AUTH_TOKEN.trim())
@@ -366,9 +373,9 @@ pipeline
 							int personIDResCode
 							
 							// Submit a REST API call to HCMX to get Person ID
-							if (USE_PROXY.equalsIgnoreCase("NO"))
+							if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 							{
-								(personIDResponse, personIDResCode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + HCMX_USER + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+								(personIDResponse, personIDResCode)  = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + HCMX_USER + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 							}
 							
 							if (personIDResCode == 200 && personIDResponse && personIDResponse.trim()) 
@@ -387,9 +394,9 @@ pipeline
 								int depVMResponseCode
 								
 								// Submit a REST API call to HCMX to deploy a new test server VM								
-								if (USE_PROXY.equalsIgnoreCase("NO"))
+								if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 								{
-									(depVMResponse, depVMResponseCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
+									(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
 								}
 																
 												
@@ -416,9 +423,9 @@ pipeline
 										// Submit a REST API call to HCMX to get status of VM deployment request
 										echo "HCMX: Get request status until it is Closed"
 										
-										if (USE_PROXY.equalsIgnoreCase("NO"))
+										if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 										{
-											(reqResponse, reqCode) = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+											(reqResponse, reqCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 										}
 										
 										if (reqCode == 200 && reqResponse && reqResponse.trim()) 
@@ -451,9 +458,9 @@ pipeline
 									String subResponse
 									int subRescode
 									// Submit a REST API call to HCMX to get subscription ID
-									if (USE_PROXY.equalsIgnoreCase("NO"))
+									if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 									{
-										(subResponse, subRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+										(subResponse, subRescode)  = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 									}
 									
 									if (subRescode == 200 && subResponse && subResponse.trim()) 
@@ -469,9 +476,9 @@ pipeline
 										String svcInstResponse
 										int svcInstRescode
 										// Submit a REST API call to HCMX to get a list of service instances associated with the subscription
-										if (USE_PROXY.equalsIgnoreCase("NO"))
+										if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 										{	
-											(svcInstResponse, svcInstRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+											(svcInstResponse, svcInstRescode)  = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 										}
 										
 										if (svcInstRescode == 200 && svcInstResponse && svcInstResponse.trim()) 
@@ -594,7 +601,7 @@ def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQD
 	final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
 	
 	// Submit a REST API call to HCMX to cancel subscription, thereby delete deployed VM
-	final def (String subCancelResponse, int subCancelRescode)  = sh(script: '''set +x;curl -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+	final def (String subCancelResponse, int subCancelRescode)  = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 		
 	if (subCancelRescode == 200) 
 	{
