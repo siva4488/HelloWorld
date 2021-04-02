@@ -435,11 +435,11 @@ pipeline
 									// Submit a REST API call to HCMX to deploy a new test server VM								
 									if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set -x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":1617332574714,"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_VCENTER_VM_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")	
+										(depVMResponse, depVMResponseCode) = sh(script: '''set -x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_VCENTER_VM_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")	
 									}
 									else
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set -x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":1617332574714,"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_VCENTER_VM_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")																		
+										(depVMResponse, depVMResponseCode) = sh(script: '''set -x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_VCENTER_VM_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")																		
 									}
 																	
 													
@@ -539,8 +539,8 @@ pipeline
 											if (svcInstResCode == 200 && svcInstResponse && svcInstResponse.trim()) 
 											{
 												def svcInstResponseJSON = new groovy.json.JsonSlurperClassic().parseText(svcInstResponse)
-												def svcInstTopologyArray = svcInstResponseJSON.topology
-												def ipAddress = ""
+												def svcInstTopologyArray = svcInstResponseJSON.topology												
+												List<String> testVMIPList = new ArrayList<String>();
 												
 												echo "HCMX: Looping through service instances to find IP address of deployed VM"
 												// Loop through service instances. Retrieve IP address property value for the service instance with type = CI_TYPE_SERVER
@@ -553,46 +553,58 @@ pipeline
 														{
 															if(propMember.name && propMember.name.equalsIgnoreCase("primary_ip_address"))
 															{
-																ipAddress = propMember.propertyValue																										 
+																testVMIPList.add(propMember.propertyValue)																										 
 																break
 															}
-														}
-														break
+														}														
 													}
 												}
-												
-												if(ipAddress && ipAddress.trim())
+												if (testVMIPList.size() == 0)
 												{
-													echo "HCMX: IP address of deployed virtual machine is $ipAddress"	
-													
-													// Copy build to the deployed virtual machine for testing.
-													echo '***************************************** COPYING BUILD TO THE DEPLOYED VM FOR TESTING  *****************************************'
-													final String scpCMDOutput = sh(script: "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp ./build root@$ipAddress:/tmp/", returnStdout: true).trim()
-													
-													// Test build on the deployed virtual machine.
-													echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM *****************************************'
-													final String remoteCMDOutput = sh(script: "ssh -o StrictHostKeyChecking=no root@$ipAddress /tmp/build/HelloWorld.sh", returnStdout: true).trim()
-													
-													// Validate test results from build execution results on remotely deployed virtual machine
-													if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
+													echo "Deployed VM's IP address is empty. Cannot copy build to test on newly deployed VMs"
+													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+													error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"											
+												}
+												for (String ipAddress : testVMIPList) 
+												{											
+													if(ipAddress && ipAddress.trim())
 													{
-														echo "Testing of new build was succesful..Deleting deployed VMs and then Proceeding to deploy stage."
-														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+														//Copy build to the deployed virtual machines for testing.
+														echo '***************************************** COPYING BUILD TO THE DEPLOYED VM(s) FOR TESTING  *****************************************'
+														echo "HCMX: Copying build to the virtual machine with IP address: $ipAddress"
+														final String scpCMDOutput = sh(script: "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp ./build root@$ipAddress:/tmp/", returnStdout: true).trim()
+													
 													}
 													else
 													{
-														echo "Testing of new build has failed... "
+														echo "Deployed VM's IP address is empty. Cannot copy build to test VM"
 														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
-														error "Testing of new build has failed..."
+														error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"
 													}
-													
 												}
-												else
-												{
-													echo "Deployed VM's IP address is empty. Cannot copy build to test VM"
-													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
-													error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"
-												}																			
+												
+												for (String ipAddress : testVMIPList) 
+												{											
+															
+													
+														// Test build on the deployed virtual machine.
+														echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM(s) *****************************************'
+														echo "HCMX: Testing build on the virtual machine with IP address: $ipAddress"
+														final String remoteCMDOutput = sh(script: "ssh -o StrictHostKeyChecking=no root@$ipAddress /tmp/build/HelloWorld.sh", returnStdout: true).trim()
+														
+														// Validate test results from build execution results on remotely deployed virtual machine
+														if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
+														{
+															echo "Testing of new build was succesful..Deleting deployed VMs and then Proceeding to deploy stage."
+															CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+														}
+														else
+														{
+															echo "Testing of new build has failed... "
+															CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+															error "Testing of new build has failed..."
+														}																										
+												}																															
 											}
 											else
 											{
