@@ -51,13 +51,16 @@ pipeline
 		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
 		
 		//VM name prefix to be used during deployment of VM
-		HCMX_VCENTER_VMNAME_PREFIX = "TestHelloWorldVM"
+		HCMX_VCENTER_VMNAME_PREFIX = "HelloWorld"
 		
 		// Memory size in MB to be used for the deployment of VM
 		HCMX_VCENTER_VM_MEMORY_SIZE_MB = "1024"
 		
 		// Number of CPUs to be used for the deployment of VM
-		HCMX_VCENTER_VM_NUM_CPU = "1"		
+		HCMX_VCENTER_VM_NUM_CPU = "1"
+
+		// Number of Virtual Machines needed to conduct testing
+		HCMX_VCENTER_VM_NUM = "2"
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
@@ -122,7 +125,10 @@ pipeline
 							final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
 														
 							// Maximum number of CPUs that can be specified to deploy VM
-							final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32						
+							final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32	
+							
+							// Minimum number of VMs that must be specified to deploy VM
+							final int HCMX_VCENTER_VM_MIN_NUM = 1
 							
 							String HCMX_SERVER_FQDN
 							String HCMX_TENANT_ID
@@ -141,6 +147,7 @@ pipeline
 							String HCMX_VCENTER_VMNAME_PREFIX						
 							long HCMX_VCENTER_VM_MEMORY_SIZE_MB = 1024
 							int HCMX_VCENTER_VM_NUM_CPU = 1
+							int HCMX_VCENTER_VM_NUM = 1
 							String HCMX_VCENTER_VM_REQUEST_TITLE
 							String HCMX_VCENTER_VM_REQUEST_DESCRIPTION
 							String HCMX_VCENTER_VM_SUB_NAME
@@ -319,6 +326,19 @@ pipeline
 								error "HCMX_VCENTER_VM_NUM_CPU must be an integer"
 							}
 							
+							if (env.HCMX_VCENTER_VM_NUM && env.HCMX_VCENTER_VM_NUM.toString().isNumber())
+							{
+								HCMX_VCENTER_VM_NUM = env.HCMX_VCENTER_VM_NUM as int
+								if (HCMX_VCENTER_VM_NUM < HCMX_VCENTER_VM_MIN_NUM)
+								{
+									error "HCMX_VCENTER_VM_NUM must be >= $HCMX_VCENTER_VM_MIN_NUM"
+								}		
+							}
+							else
+							{
+								error "HCMX_VCENTER_VM_NUM must be an integer"
+							}
+							
 							if(env.HCMX_VCENTER_VM_REQUEST_TITLE)
 							{
 								HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
@@ -415,11 +435,11 @@ pipeline
 									// Submit a REST API call to HCMX to deploy a new test server VM								
 									if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
+										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":"''' +HCMX_VCENTER_VM_NUM+'''",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")
 									}
 									else
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")									
+										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":"''' +HCMX_VCENTER_VM_NUM+'''",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")									
 									}
 																	
 													
@@ -627,35 +647,38 @@ pipeline
 
 def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQDN, String HCMX_TENANT_ID, String HCMX_PERSON_ID, String subID, String SMAX_AUTH_TOKEN, String curlCMD, String USE_PROXY, String   PROXY_REQUIRES_CREDENTIALS)
 {
-	// For demo and testing only. Comment out this line in production environment.
-	echo "sleep for $HCMX_SUB_CANCEL_DELAY_SECONDS seconds before canceling subscription to delete deployed VM for testing."
-	sleep(HCMX_SUB_CANCEL_DELAY_SECONDS)
-	
-	echo "HCMX: Canceling subscription"
-	// Cancel subscription to delete deployed virtual machines. This frees up resources on cloud provider and reduces cloud spend.
-	// Prepare HCMX cancel subscription URL using the subscription ID and the person ID that were obtained in earlier steps.
-	final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
-	
-	String subCancelResponse
-	int subCancelResCode
-	
-	// Submit a REST API call to HCMX to cancel subscription, thereby delete deployed VM
-	if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
+	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ProxyCred', usernameVariable: 'PROXY_USER', passwordVariable: 'PROXY_USER_PSW']]) 
 	{	
-		(subCancelResponse, subCancelResCode)  = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-	}
-	else
-	{
-		(subCancelResponse, subCancelResCode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
-	}
+		// For demo and testing only. Comment out this line in production environment.
+		echo "sleep for $HCMX_SUB_CANCEL_DELAY_SECONDS seconds before canceling subscription to delete deployed VM for testing."
+		sleep(HCMX_SUB_CANCEL_DELAY_SECONDS)
 		
-	if (subCancelResCode == 200) 
-	{
-		echo "HCMX Subscription canceled successfully"
-	}
-	else
-	{
-		echo "HCMX subscription cancellation failed. Removal of deployed VM has failed."
-		echo "HCMX Subscription cancellation response: $subCancelResponse"
+		echo "HCMX: Canceling subscription"
+		// Cancel subscription to delete deployed virtual machines. This frees up resources on cloud provider and reduces cloud spend.
+		// Prepare HCMX cancel subscription URL using the subscription ID and the person ID that were obtained in earlier steps.
+		final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
+		
+		String subCancelResponse
+		int subCancelResCode
+		
+		// Submit a REST API call to HCMX to cancel subscription, thereby delete deployed VM
+		if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
+		{	
+			(subCancelResponse, subCancelResCode)  = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+		}
+		else
+		{
+			(subCancelResponse, subCancelResCode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X PUT "''' + HCMX_CANCEL_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+		}
+			
+		if (subCancelResCode == 200) 
+		{
+			echo "HCMX Subscription canceled successfully"
+		}
+		else
+		{
+			echo "HCMX subscription cancellation failed. Removal of deployed VM has failed."
+			echo "HCMX Subscription cancellation response: $subCancelResponse"
+		}
 	}
 }
