@@ -585,26 +585,26 @@ pipeline
 												
 												for (String ipAddress : testVMIPList) 
 												{											
-															
+																											
+													// Test build on the deployed virtual machine.
+													echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM(s) *****************************************'
+													echo "HCMX: Testing build on the virtual machine with IP address: $ipAddress"
+													final String remoteCMDOutput = sh(script: "ssh -o StrictHostKeyChecking=no root@$ipAddress /tmp/build/HelloWorld.sh", returnStdout: true).trim()
 													
-														// Test build on the deployed virtual machine.
-														echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM(s) *****************************************'
-														echo "HCMX: Testing build on the virtual machine with IP address: $ipAddress"
-														final String remoteCMDOutput = sh(script: "ssh -o StrictHostKeyChecking=no root@$ipAddress /tmp/build/HelloWorld.sh", returnStdout: true).trim()
-														
-														// Validate test results from build execution results on remotely deployed virtual machine
-														if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
-														{
-															echo "Testing of new build was succesful..Deleting deployed VMs and then Proceeding to deploy stage."
-															CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
-														}
-														else
-														{
-															echo "Testing of new build has failed... "
-															CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
-															error "Testing of new build has failed..."
-														}																										
-												}																															
+													// Validate test results from build execution results on remotely deployed virtual machine
+													if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
+													{
+														echo "Testing of new build was succesful.."															
+													}
+													else
+													{
+														echo "Testing of new build has failed... "
+														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+														error "Testing of new build has failed..."
+													}																										
+												}
+												echo "Deleting deployed VMs and then Proceeding to deploy stage."
+												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
 											}
 											else
 											{
