@@ -18,7 +18,7 @@ pipeline
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "180"
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
@@ -522,12 +522,12 @@ pipeline
 												if(remoteCMDOutput && remoteCMDOutput.equals("Hello World"))
 												{
 													echo "Testing of new build was succesful..Deleting deployed VMs and then Proceeding to deploy stage."
-													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
+													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD)
 												}
 												else
 												{
 													echo "Testing of new build has failed... "
-													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
+													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD)
 													error "Testing of new build has failed..."
 												}
 												
@@ -535,14 +535,14 @@ pipeline
 											else
 											{
 												echo "Deployed VM's IP address is empty. Cannot copy build to test VM"
-												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
+												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD)
 												error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"
 											}																			
 										}
 										else
 										{
 											echo "Failed to get service instances from HCMX"
-											CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN)
+											CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD)
 											error "Failed to get service instances from HCMX"
 										}
 									} 
@@ -589,7 +589,7 @@ pipeline
     }
 }
 
-def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQDN, String HCMX_TENANT_ID, String HCMX_PERSON_ID, String subID, String SMAX_AUTH_TOKEN )
+def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQDN, String HCMX_TENANT_ID, String HCMX_PERSON_ID, String subID, String SMAX_AUTH_TOKEN, String curlCMD)
 {
 	// For demo and testing only. Comment out this line in production environment.
 	echo "sleep for $HCMX_SUB_CANCEL_DELAY_SECONDS seconds before canceling subscription to delete deployed VM for testing."
