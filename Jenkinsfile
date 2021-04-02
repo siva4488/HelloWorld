@@ -364,7 +364,7 @@ pipeline
 							}
 							else
 							{
-								(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxyuser $PROXY_USER:$PROXY_USER_PSW   -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
+								(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set -x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW   -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
 							}
 							
 							if (getTokenResCode == 200 && SMAX_AUTH_TOKEN && SMAX_AUTH_TOKEN.trim())
@@ -384,7 +384,7 @@ pipeline
 								}
 								else
 								{
-									(personIDResponse, personIDResCode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxyuser $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + HCMX_USER + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+									(personIDResponse, personIDResCode)  = sh(script: '''set -x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_PERSON_ID_URL_1 + HCMX_USER + HCMX_GET_PERSON_ID_URL_2 + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 								}
 								
 								if (personIDResCode == 200 && personIDResponse && personIDResponse.trim()) 
@@ -409,7 +409,7 @@ pipeline
 									}
 									else
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxyuser $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")									
+										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities": [{"entity_type": "Request","properties": {"RequestedForPerson": "''' + HCMX_PERSON_ID + '''", "StartDate": ''' + epochMilliSeconds + ''', "RequestsOffering": "10096", "CreationSource": "CreationSourceEss", "RequestedByPerson": "''' +HCMX_PERSON_ID+'''", "DataDomains":["Public"],"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}", "Description": "<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>", "RelatedSubscriptionName": "''' + HCMX_VCENTER_VM_SUB_NAME + '''", "RelatedSubscriptionDescription": "<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>", "RequestAttachments": "{\\"complexTypeProperties\\":[]}", "DisplayLabel": "''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation": "CREATE"}' ''', returnStdout: true).trim().tokenize("\n")									
 									}
 																	
 													
@@ -442,7 +442,7 @@ pipeline
 											}
 											else
 											{
-												(reqResponse, reqCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxyuser $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+												(reqResponse, reqCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_REQUEST_STATUS_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 											}
 											
 											if (reqCode == 200 && reqResponse && reqResponse.trim()) 
@@ -481,7 +481,7 @@ pipeline
 										}
 										else
 										{
-											(subResponse, subRescode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxyuser $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
+											(subResponse, subRescode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_SUBSCRIPTION_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")
 										}
 										
 										if (subRescode == 200 && subResponse && subResponse.trim()) 
@@ -503,7 +503,7 @@ pipeline
 											}
 											else
 											{
-												(svcInstResponse, svcInstRescode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxyuser $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")											
+												(svcInstResponse, svcInstRescode)  = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' "''' + HCMX_GET_SVCINSTANCE_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" ''', returnStdout: true).trim().tokenize("\n")											
 											}
 											
 											if (svcInstRescode == 200 && svcInstResponse && svcInstResponse.trim()) 
