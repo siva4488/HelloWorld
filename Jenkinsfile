@@ -240,9 +240,7 @@ pipeline
 								{
 									error "PROXY_REQUIRES_CREDENTIALS cannot be NULL or empty when USE_PROXY is set to yes"
 								}
-								curlCMD = "curl --proxy \""+ PROXY_PROTOCOL + "://" + PROXY_HOST + ":" + PROXY_PORT +"\""
-								println curlCMD
-								error "exit"
+								curlCMD = "curl --proxy \""+ PROXY_PROTOCOL + "://" + PROXY_HOST + ":" + PROXY_PORT +"\""								
 							}
 							else
 							{
@@ -362,11 +360,11 @@ pipeline
 							// Submit a REST API call to HCMX to get SMAX_AUTH_TOKEN
 							if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 							{
-								(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
+								(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w \'\\n%{response_code}\' -X POST "''' + HCMX_AUTH_URL + '''" -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
 							}
 							else
 							{
-								(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set -x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW   -s -w \'\\n%{response_code}\' -X POST ''' + HCMX_AUTH_URL + ''' -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
+								(SMAX_AUTH_TOKEN, getTokenResCode) = sh(script: '''set -x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW   -s -w \'\\n%{response_code}\' -X POST "''' + HCMX_AUTH_URL + '''" -k -H "Content-Type: application/json" -d \'{"login":"\'"$HCMX_USER"\'","password":"\'"$HCMX_USER_PSW"\'"}\' ''', returnStdout: true).trim().tokenize("\n")
 							}
 							
 							if (getTokenResCode == 200 && SMAX_AUTH_TOKEN && SMAX_AUTH_TOKEN.trim())
