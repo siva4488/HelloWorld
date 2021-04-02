@@ -241,6 +241,8 @@ pipeline
 									error "PROXY_REQUIRES_CREDENTIALS cannot be NULL or empty when USE_PROXY is set to yes"
 								}
 								curlCMD = "curl --proxy \""+ PROXY_PROTOCOL + "://" + PROXY_HOST + ":" + PROXY_PORT +"\""
+								println curlCMD
+								error "exit"
 							}
 							else
 							{
