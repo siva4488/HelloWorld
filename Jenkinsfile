@@ -24,7 +24,7 @@ pipeline
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
 		
 		// If Jenkins needs a web proxy to reach HCMX, set this to YES. Possible values are YES and NO.
-		USE_PROXY = "NO"
+		USE_PROXY = "YES"
 		
 		// Web proxy hostname. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_HOST is mandatory.
 		PROXY_HOST = "web-proxy.us.softwaregrp.net"
@@ -37,7 +37,7 @@ pipeline
 		
 		// Web proxy credentials. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_REQUIRES_CREDENTIALS is mandatory.
 		// Create user name, password credentials in Jenkins with ProxyCred as its ID.
-		PROXY_REQUIRES_CREDENTIALS = "YES"
+		PROXY_REQUIRES_CREDENTIALS = "NO"
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
