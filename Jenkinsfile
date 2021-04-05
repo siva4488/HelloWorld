@@ -115,6 +115,9 @@ pipeline
 					{
 						withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ProxyCred', usernameVariable: 'PROXY_USER', passwordVariable: 'PROXY_USER_PSW']]) 
 						{	    
+							final int PROXY_PORT_NUM_MIN = 0
+							final int PROXY_PORT_NUM_MAX = 65535
+							
 							// Minimum memory size in MB that must be specified to deploy VMs
 							final int HCMX_VCENTER_VM_MIN_MEMORY_SIZE = 4
 			
@@ -227,6 +230,10 @@ pipeline
 								if(env.PROXY_PORT && env.PROXY_PORT.toString().isNumber())
 								{
 									PROXY_PORT = env.PROXY_PORT as int
+									if (PROXY_PORT < PROXY_PORT_NUM_MIN || PROXY_PORT > PROXY_PORT_NUM_MAX)
+									{
+										error "PROXY_PORT must be >= $PROXY_PORT_NUM_MIN and <= $PROXY_PORT_NUM_MAX"
+									}
 								}
 								else
 								{
