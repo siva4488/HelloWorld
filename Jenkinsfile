@@ -37,7 +37,7 @@ pipeline
 		
 		// Web proxy credentials. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_REQUIRES_CREDENTIALS is mandatory.
 		// Create user name, password credentials in Jenkins with ProxyCred as its ID.
-		PROXY_REQUIRES_CREDENTIALS = "NO"
+		PROXY_REQUIRES_CREDENTIALS = "YES"
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
