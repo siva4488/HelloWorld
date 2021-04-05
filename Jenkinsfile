@@ -24,10 +24,10 @@ pipeline
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
 		
 		// If Jenkins needs a web proxy to reach HCMX, set this to YES. Possible values are YES and NO.
-		USE_PROXY = "NO"
+		USE_PROXY = "YES"
 		
 		// Web proxy hostname. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_HOST is mandatory.
-		PROXY_HOST = "web-proxy.us.softwaregrp.net"
+		//PROXY_HOST = "web-proxy.us.softwaregrp.net"
 		
 		// Web proxy port. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PORT is mandatory.
 		PROXY_PORT = "8080"
