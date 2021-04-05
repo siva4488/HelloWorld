@@ -28,6 +28,7 @@ pipeline
 		
 		// Web proxy hostname. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_HOST is mandatory.
 		//PROXY_HOST = "web-proxy.us.softwaregrp.net"
+		PROXY_HOST = ""
 		
 		// Web proxy port. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PORT is mandatory.
 		PROXY_PORT = "8080"
