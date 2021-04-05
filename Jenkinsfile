@@ -229,7 +229,7 @@ pipeline
 							
 								if(env.PROXY_PORT && env.PROXY_PORT.toString().isNumber())
 								{
-									PROXY_PORT = env.PROXY_PORT
+									PROXY_PORT = env.PROXY_PORT as int
 									if (PROXY_PORT < PROXY_PORT_NUM_MIN || PROXY_PORT > PROXY_PORT_NUM_MAX)
 									{
 										error "PROXY_PORT must be >= $PROXY_PORT_NUM_MIN and <= $PROXY_PORT_NUM_MAX"
