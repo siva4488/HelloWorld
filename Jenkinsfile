@@ -33,11 +33,11 @@ pipeline
 		PROXY_PORT = "8080"
 		
 		// Web proxy protocol. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PROTOCOL is mandatory.
-		PROXY_PROTOCOL = "ABC"
+		PROXY_PROTOCOL = "http"
 		
 		// Web proxy credentials. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_REQUIRES_CREDENTIALS is mandatory.
 		// Create user name, password credentials in Jenkins with ProxyCred as its ID.
-		PROXY_REQUIRES_CREDENTIALS = "YES"
+		PROXY_REQUIRES_CREDENTIALS = ""
 		
 		
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
