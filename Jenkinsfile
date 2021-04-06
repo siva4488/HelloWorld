@@ -33,7 +33,7 @@ pipeline
 		PROXY_PORT = "8080"
 		
 		// Web proxy protocol. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PROTOCOL is mandatory.
-		PROXY_PROTOCOL = ""
+		PROXY_PROTOCOL = "ABC"
 		
 		// Web proxy credentials. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_REQUIRES_CREDENTIALS is mandatory.
 		// Create user name, password credentials in Jenkins with ProxyCred as its ID.
