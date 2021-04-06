@@ -30,10 +30,10 @@ pipeline
 		PROXY_HOST = "web-proxy.us.softwaregrp.net"
 		
 		// Web proxy port. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PORT is mandatory.
-		PROXY_PORT = "-1"
+		PROXY_PORT = "8080"
 		
 		// Web proxy protocol. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PROTOCOL is mandatory.
-		PROXY_PROTOCOL = "http"
+		PROXY_PROTOCOL = ""
 		
 		// Web proxy credentials. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_REQUIRES_CREDENTIALS is mandatory.
 		// Create user name, password credentials in Jenkins with ProxyCred as its ID.
