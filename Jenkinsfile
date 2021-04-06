@@ -30,7 +30,7 @@ pipeline
 		PROXY_HOST = "web-proxy.us.softwaregrp.net"
 		
 		// Web proxy port. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PORT is mandatory.
-		PROXY_PORT = "80800"
+		PROXY_PORT = "-1"
 		
 		// Web proxy protocol. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PROTOCOL is mandatory.
 		PROXY_PROTOCOL = "http"
