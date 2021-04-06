@@ -18,7 +18,7 @@ pipeline
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "180"
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
