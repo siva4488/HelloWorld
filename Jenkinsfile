@@ -5,7 +5,7 @@ pipeline
 	{
         /********** GLOBAL environment variables applicable to all HCMX offerings ************/
 		// HCMX Server's fully qualified domain name
-		HCMX_SERVER_FQDN = "catvmlmpoc1.ftc.hpeswlab.net"
+		HCMX_EXT_ACCESS_HOSTNAME = "catvmlmpoc1.ftc.hpeswlab.net"
         
 		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
 		// HCMX will be used to provision VMs on which testing of the new build will be performed.
@@ -18,7 +18,7 @@ pipeline
 		
 		// Set this to zero seconds if you are using it in productions jenkins environment.
 		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "180"
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
 		
 		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
 		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
@@ -28,7 +28,6 @@ pipeline
 		
 		// Web proxy hostname. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_HOST is mandatory.
 		PROXY_HOST = "web-proxy.us.softwaregrp.net"
-		
 		
 		// Web proxy port. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PORT is mandatory.
 		PROXY_PORT = "8080"
@@ -61,7 +60,7 @@ pipeline
 		HCMX_VCENTER_VM_NUM_CPU = "1"
 
 		// Number of Virtual Machines needed to conduct testing
-		HCMX_VCENTER_VM_NUM = "2"
+		HCMX_VCENTER_VM_NUM = "1"
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
@@ -134,7 +133,7 @@ pipeline
 							// Minimum number of VMs that must be specified to deploy VM
 							final int HCMX_VCENTER_VM_MIN_NUM = 1
 							
-							String HCMX_SERVER_FQDN
+							String HCMX_EXT_ACCESS_HOSTNAME
 							String HCMX_TENANT_ID
 							int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
 							int HCMX_SUB_CANCEL_DELAY_SECONDS = 0						
@@ -159,13 +158,13 @@ pipeline
 							
 							String curlCMD = "curl"
 							
-							if(env.HCMX_SERVER_FQDN)
+							if(env.HCMX_EXT_ACCESS_HOSTNAME)
 							{
-								HCMX_SERVER_FQDN = env.HCMX_SERVER_FQDN
+								HCMX_EXT_ACCESS_HOSTNAME = env.HCMX_EXT_ACCESS_HOSTNAME
 							}
 							else
 							{
-								error "HCMX_SERVER_FQDN cannot be NULL or empty"
+								error "HCMX_EXT_ACCESS_HOSTNAME cannot be NULL or empty"
 							}
 							
 							if(env.HCMX_TENANT_ID)
@@ -391,7 +390,7 @@ pipeline
 							echo "HCMX: Get SMAX Auth Token"
 							// HCMX REST APIs require SMAX AUTH TOKEN and TENANT ID to perform any POST, PUT and GET operations.
 							// Build HCMX Authentication Token URL
-							final String HCMX_AUTH_URL = "https://" + HCMX_SERVER_FQDN + "/auth/authentication-endpoint/authenticate/token?TENANTID=" + HCMX_TENANT_ID
+							final String HCMX_AUTH_URL = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/auth/authentication-endpoint/authenticate/token?TENANTID=" + HCMX_TENANT_ID
 							String SMAX_AUTH_TOKEN
 							int getTokenResCode
 							
@@ -408,9 +407,8 @@ pipeline
 							if (getTokenResCode == 200 && SMAX_AUTH_TOKEN && SMAX_AUTH_TOKEN.trim())
 							{											
 								echo "HCMX: Get person ID"
-								// Build HCMX Get Person ID URL
-								//final String HCMX_GET_PERSON_ID_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Person?filter=(Upn=%27" + HCMX_USER + "%27)&layout=Id"
-								final String HCMX_GET_PERSON_ID_URL_1 = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Person?filter=(Upn=%27"
+								// Build HCMX Get Person ID URL								
+								final String HCMX_GET_PERSON_ID_URL_1 = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/rest/" + HCMX_TENANT_ID + "/ems/Person?filter=(Upn=%27"
 								final String HCMX_GET_PERSON_ID_URL_2 = "%27)&layout=Id"
 								String personIDResponse
 								int personIDResCode
@@ -433,7 +431,7 @@ pipeline
 								
 									echo "HCMX: Submit request for a new VM for testing"
 									// Build HCMX create request URL
-									final String HCMX_CREATE_REQUEST_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/request/createRequest"
+									final String HCMX_CREATE_REQUEST_URL = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/rest/" + HCMX_TENANT_ID + "/ess/request/createRequest"
 									
 									Date curDate = new Date()
 									long epochMilliSeconds = curDate.getTime()
@@ -458,7 +456,7 @@ pipeline
 										echo "HCMX Request ID to deploy a new test server VM is $HCMX_REQUEST_ID"
 										
 										// Build HCMX Get request status URL
-										final String HCMX_GET_REQUEST_STATUS_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Request?filter=(Id=%27" + HCMX_REQUEST_ID + "%27)&layout=PhaseId"
+										final String HCMX_GET_REQUEST_STATUS_URL = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/rest/" + HCMX_TENANT_ID + "/ems/Request?filter=(Id=%27" + HCMX_REQUEST_ID + "%27)&layout=PhaseId"
 										String reqStatus = "Log"
 										int reqCode = 0
 										int timeSpent = 0
@@ -508,7 +506,7 @@ pipeline
 										
 										echo "HCMX: Get subscription ID"
 										// Build HCMX Get subscription URL using the request ID that was obtained in earlier steps.
-										final String HCMX_GET_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ems/Subscription?filter=(InitiatedByRequest=%27" + HCMX_REQUEST_ID + "%27%20and%20Status=%27Active%27)&layout=Id"
+										final String HCMX_GET_SUBSCRIPTION_URL = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/rest/" + HCMX_TENANT_ID + "/ems/Subscription?filter=(InitiatedByRequest=%27" + HCMX_REQUEST_ID + "%27%20and%20Status=%27Active%27)&layout=Id"
 										
 										String subResponse
 										int subResCode
@@ -530,7 +528,7 @@ pipeline
 											
 											echo "HCMX: Get service instances"
 											// Prepare HCMX Get service instance URL using the subscription ID that was obtained in earlier steps.
-											final String HCMX_GET_SVCINSTANCE_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/cloud-service/getServiceInstance/" + subID
+											final String HCMX_GET_SVCINSTANCE_URL = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/rest/" + HCMX_TENANT_ID + "/cloud-service/getServiceInstance/" + subID
 											
 											String svcInstResponse
 											int svcInstResCode
@@ -570,7 +568,7 @@ pipeline
 												if (testVMIPList.size() == 0)
 												{
 													echo "Deployed VM's IP address is empty. Cannot copy build to test on newly deployed VMs"
-													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+													CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_EXT_ACCESS_HOSTNAME, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
 													error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"											
 												}
 												for (String ipAddress : testVMIPList) 
@@ -586,7 +584,7 @@ pipeline
 													else
 													{
 														echo "Deployed VM's IP address is empty. Cannot copy build to test VM"
-														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_EXT_ACCESS_HOSTNAME, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
 														error "Deployed VM's IP address is empty. Cannot copy build to test on the newly deployed VM. Exiting"
 													}
 												}
@@ -607,17 +605,17 @@ pipeline
 													else
 													{
 														echo "Testing of new build has failed... "
-														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+														CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_EXT_ACCESS_HOSTNAME, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
 														error "Testing of new build has failed..."
 													}																										
 												}
 												echo "Deleting deployed VMs and then Proceeding to deploy stage."
-												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_EXT_ACCESS_HOSTNAME, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
 											}
 											else
 											{
 												echo "Failed to get service instances from HCMX"
-												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_SERVER_FQDN, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
+												CancelSubscription(HCMX_SUB_CANCEL_DELAY_SECONDS, HCMX_EXT_ACCESS_HOSTNAME, HCMX_TENANT_ID, HCMX_PERSON_ID, subID, SMAX_AUTH_TOKEN, curlCMD, USE_PROXY, PROXY_REQUIRES_CREDENTIALS)
 												error "Failed to get service instances from HCMX"
 											}
 										} 
@@ -665,7 +663,7 @@ pipeline
     }
 }
 
-def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQDN, String HCMX_TENANT_ID, String HCMX_PERSON_ID, String subID, String SMAX_AUTH_TOKEN, String curlCMD, String USE_PROXY, String   PROXY_REQUIRES_CREDENTIALS)
+def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_EXT_ACCESS_HOSTNAME, String HCMX_TENANT_ID, String HCMX_PERSON_ID, String subID, String SMAX_AUTH_TOKEN, String curlCMD, String USE_PROXY, String   PROXY_REQUIRES_CREDENTIALS)
 {
 	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ProxyCred', usernameVariable: 'PROXY_USER', passwordVariable: 'PROXY_USER_PSW']]) 
 	{	
@@ -676,7 +674,7 @@ def CancelSubscription(int HCMX_SUB_CANCEL_DELAY_SECONDS, String HCMX_SERVER_FQD
 		echo "HCMX: Canceling subscription"
 		// Cancel subscription to delete deployed virtual machines. This frees up resources on cloud provider and reduces cloud spend.
 		// Prepare HCMX cancel subscription URL using the subscription ID and the person ID that were obtained in earlier steps.
-		final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_SERVER_FQDN + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
+		final String HCMX_CANCEL_SUBSCRIPTION_URL = "https://" + HCMX_EXT_ACCESS_HOSTNAME + "/rest/" + HCMX_TENANT_ID + "/ess/subscription/cancelSubscription/" + HCMX_PERSON_ID + "/" + subID
 		
 		String subCancelResponse
 		int subCancelResCode
