@@ -61,7 +61,7 @@ pipeline
 		HCMX_VCENTER_VM_NUM_CPU = "1"
 
 		// Number of Virtual Machines needed to conduct testing
-		HCMX_VCENTER_VM_NUM = "1"
+		HCMX_VCENTER_VM_NUM = "2"
 		
 		// Request title displayed in HCMX
 		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
