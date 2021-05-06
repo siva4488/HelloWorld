@@ -3,77 +3,130 @@ pipeline
     agent any
     environment 
 	{
-        /********** GLOBAL environment variables applicable to all HCMX offerings ************/
-		// HCMX Server's fully qualified domain name
+        /*************************************************************************************************************************************************/
+		/***************************************** GLOBAL environment variables applicable to all HCMX offerings *****************************************/
+		/*************************************************************************************************************************************************/
+		
+		// Enter your environment’s HCMX external access hostname.
+		// The HCMX external access hostname is the fully qualified domain name portion of the HCMX tenant self-service portal URL. 
+		// If HCMX tenant self-service URL is https://server.xyz.com/saw?TENANTID=616409711, then HCMX external access hostname is server.xyz.com
+		// HCMX_EXT_ACCESS_HOSTNAME is a mandatory variable and must contain a value.
+		
 		HCMX_EXT_ACCESS_HOSTNAME = "catvmlmpoc1.ftc.hpeswlab.net"
         
-		// HCMX tenant's ID that has DND capability. DND capability is required to provision and manage VMs.
-		// HCMX will be used to provision VMs on which testing of the new build will be performed.
-		// After testing is complete, provisioned VMs are deleted so that expenses on public cloud is reduced and resource usage on private cloud is reduced.
+		// Enter your environment’s HCMX tenant ID that has DND capability deployed in it. 
+		// DND capability is required in a tenant to provision and manage VMs. 
+		// HCMX will be used to provision VMs for creating a test environment and in which testing of the new build will be performed. 
+		// After testing is complete, provisioned VMs are deleted so that resource usage on cloud provider is reduced, thereby reducing cloud expenses.
+		// If HCMX tenant self-service URL is https://server.xyz.com/saw?TENANTID=616409711, then HCMX tenant ID is 616409711. 
+		// HCMX_TENANT_ID is a mandatory variable and must contain a value.
+		
 		HCMX_TENANT_ID = "616409711"
 
-		// Define interval in seconds to check status of VM deployment request in HCMX
-		// VM deployment may take longer than 10 minutes depending on cloud provider.
-		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = "30"
+		// If Jenkins needs a web proxy to reach HCMX, set USE_PROXY variable to YES. 
+		// USE_PROXY is a mandatory variable and must contain a value. Possible values are YES and NO.
 		
-		// Set this to zero seconds if you are using it in productions jenkins environment.
-		// Set this to atleast 180 seconds for demonstration of deployed VM using HCMX
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
+		USE_PROXY = "NO"
 		
-		// If test VM is not provisioned by HCMX within the time specified in this parameter, exit the build.
-		HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = "600"
+		// Enter fully qualified domain name of web proxy. If USE_PROXY variable is set to YES, then PROXY_HOST variable is mandatory. 
+		// If USE_PROXY variable is set to NO, then PROXY_HOST variable is optional.
 		
-		// If Jenkins needs a web proxy to reach HCMX, set this to YES. Possible values are YES and NO.
-		USE_PROXY = "YES"
-		
-		// Web proxy hostname. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_HOST is mandatory.
 		PROXY_HOST = "web-proxy.us.softwaregrp.net"
 		
-		// Web proxy port. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PORT is mandatory.
+		// Enter web proxy port number. If USE_PROXY variable is set to YES, then PROXY_PORT variable is mandatory. 
+		// If USE_PROXY variable is set to NO, then PROXY_PORT variable is optional.
+		
 		PROXY_PORT = "8080"
 		
-		// Web proxy protocol. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_PROTOCOL is mandatory.
+		// Enter web proxy protocol. If USE_PROXY variable is set to YES, then PROXY_PROTOCOL variable is mandatory. 
+		// If USE_PROXY variable is set to NO, then PROXY_PROTOCOL variable is optional. Possible values are http and https.
+		
 		PROXY_PROTOCOL = "http"
 		
-		// Web proxy credentials. This is an optional parameter when USE_PROXY is set to NO. If USE_PROXY is set to YES, then PROXY_REQUIRES_CREDENTIALS is mandatory.
-		// Create user name, password credentials in Jenkins with ProxyCred as its ID.
-		PROXY_REQUIRES_CREDENTIALS = "no"
+		// Enter YES if web proxy requires credentials, otherwise enter NO. 
+		// If USE_PROXY variable is set to YES, then PROXY_REQUIRES_CREDENTIALS variable is mandatory. 
+		// If USE_PROXY variable is set to NO, then PROXY_REQUIRES_CREDENTIALS variable is optional. Possible values are YES and NO.
+		// If your web proxy requires credentials, create a new credential in Jenkins global scope with web proxy user ID 
+		// and password authentication information and save the credential as ProxyCred.		
 		
+		PROXY_REQUIRES_CREDENTIALS = "YES"
 		
+		// Enter interval in seconds to check status of HCMX offering (VM or VM with software) deployment request in HCMX
+		// After submission of a new request to deploy an HCMX offering, that offering's deployment may take longer  
+		// than 5 minutes depending on cloud provider, networking and other constraints. Setting HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS
+		// variable value to a very low value causes Jenkins to check status of offering deployment very frequently. 
+		// Default value is 30 seconds.
+		
+		HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = "30"
+		
+		// Enter time in seconds to wait before canceling the subscription after testing of build is complete. 
+		// Once a subscription is canceled, the ad-hoc test environment’s virtual machines are deleted, and 
+		// resources are released on the cloud provider.  Set HCMX_SUB_CANCEL_DELAY_SECONDS variable to zero seconds 
+		// if you are using it in productions Jenkins environment and you do not need to preserve the test environment. 
+		// Set HCMX_SUB_CANCEL_DELAY_SECONDS variable to at-least 180 seconds if you are using it in a POC or demo 
+		// environment so that deployed ad-hoc test environment VMs are still available to show to the audience.
+		
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "240"
+		
+		// Enter time in seconds to wait for HCMX and its target cloud provider to provision the ad-hoc test environment.  
+		// If HCMX and its target cloud provider takes longer than the timeout specified in HCMX_REQ_DEPLOY_TIMEOUT_SECONDS
+		// variable, exit the build.
+		
+		HCMX_REQ_DEPLOY_TIMEOUT_SECONDS = "600"		
+				
+		// Enter request title to use for the ad-hoc test environment deployment request in HCMX.
+		// HCMX_REQ_TITLE variable is a mandatory variable and must contain a value.
+		
+		HCMX_REQ_TITLE = "Request to deploy a new VM to test Hello World App"
+		
+		// Enter request description to use for the ad-hoc test environment deployment request in HCMX.
+		// HCMX_REQ_DESCRIPTION variable is a mandatory variable and must contain a value.
+		
+		HCMX_REQ_DESCRIPTION = "Request to deploy a new VM to test Hello World App"
+		
+		// Enter subscription name to be used for the ad-hoc test environment deployment request in HCMX.
+		// A subscription associates user and their deployed services and/or assets. A subscription also has a start and end date.
+		
+		HCMX_SUB_NAME = "Hello World Test VM"
+		
+		// Enter subscription description to be used for the ad-hoc test environment deployment request in HCMX.
+		// A subscription associates user and their deployed services and/or assets. A subscription also has a start and end date.
+		
+		HCMX_SUB_DESCRIPTION = "Hello World Test VM"	
+		
+		/*************************************************************************************************************************************************/
 		/********** HCMX Offering specific environment variables. In this example, this section is for HCMX offering to deploy VMs on vCenter ************/
-		// VMWare vCenter data center in which VM has to be deployed
+		/*************************************************************************************************************************************************/
+		
+		// Enter VMWare vCenter data center name in which VM must be deployed
+		
 		HCMX_VCENTER_DATACENTER = "CAT"
 		
-		//VMWare vCenter template to be used for deployment of VM
+		// Enter VMWare vCenter template name to be used for deployment of VM
+		
 		HCMX_VCENTER_VM_TEMPLATE = "catvmlmdep_t"
 		
-		//VMWare vCenter custom spec to be used for deployment of VM
+		// Enter VMWare vCenter custom specification to be used for deployment of VM
+		
 		HCMX_VCENTER_VM_CUSTOMSPEC = "(Ts)catvmLinuxDHCP"
 		
-		//VM name prefix to be used during deployment of VM
+		// Enter VM name prefix to be used during deployment of VM
+		
 		HCMX_VCENTER_VMNAME_PREFIX = "HelloWorld"
 		
-		// Memory size in MB to be used for the deployment of VM
+		// Enter memory size in MB to be used for the deployment of VM
+		
 		HCMX_VCENTER_VM_MEMORY_SIZE_MB = "1024"
 		
-		// Number of CPUs to be used for the deployment of VM
+		// Enter number of CPUs to be used for the deployment of VM
+		
 		HCMX_VCENTER_VM_NUM_CPU = "1"
 
-		// Number of Virtual Machines needed to conduct testing
-		HCMX_VCENTER_VM_NUM = "1"
+		// Enter number of Virtual Machines to be deployed for the ad-hoc test environment.
+		// Enter greater than one if your test environment requires testing of multiple components in 
+		// a distributed architecture.
 		
-		// Request title displayed in HCMX
-		HCMX_VCENTER_VM_REQUEST_TITLE = "Request to deploy a new VM to test Hello World App"
-		
-		// Request description to deploy a new VM for testing the build
-		HCMX_VCENTER_VM_REQUEST_DESCRIPTION = "Need VM to test Hello World Application"
-		
-		// HCMX subscription name. Each service deployed through HCMX has a subscription associated with it.
-		HCMX_VCENTER_VM_SUB_NAME = "Hello World Test VM"
-		
-		// HCMX subscription description
-		HCMX_VCENTER_VM_SUB_DESCRIPTION = "Hello World Test VM"		
-		
+		HCMX_VCENTER_VM_NUM = "1"		
     }
 
     stages 
@@ -82,12 +135,12 @@ pipeline
 		{
             steps 
 			{
-                /*  Build your project in this section.
-					You may use maven, ant, etc to build your project.
-					Compile code. Perform unit test and integration tests.
-					In this example use case, a sample HelloWorld.sh script that prints "Hello World" is built.
-					Neither Maven nor ant is required. The HelloWorld.sh is used directly as from source as the compiled code in this example use case.
-				*/
+                /*****
+				In this section, compile your code, install dependencies, perform unit test and integration tests. 
+				You may use maven, ant, etc to build your project. In the supplied Jenkinsfile, a simple HelloWorld.sh script is built. 
+				This HelloWorld.sh script prints "Hello World". Replace the build stage code with the code specific to your build requirements. 
+				For example, you may need to use ant or maven to build your code.
+				*****/
 				
 				echo '***************************************** BUILDING *****************************************'
 				sh 'mkdir build'
@@ -137,7 +190,7 @@ pipeline
 							String HCMX_TENANT_ID
 							int HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS = 30
 							int HCMX_SUB_CANCEL_DELAY_SECONDS = 0						
-							int HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = 600
+							int HCMX_REQ_DEPLOY_TIMEOUT_SECONDS = 600
 							String USE_PROXY
 							String PROXY_HOST
 							int PROXY_PORT
@@ -151,10 +204,10 @@ pipeline
 							long HCMX_VCENTER_VM_MEMORY_SIZE_MB = 1024
 							int HCMX_VCENTER_VM_NUM_CPU = 1
 							int HCMX_VCENTER_VM_NUM = 1
-							String HCMX_VCENTER_VM_REQUEST_TITLE
-							String HCMX_VCENTER_VM_REQUEST_DESCRIPTION
-							String HCMX_VCENTER_VM_SUB_NAME
-							String HCMX_VCENTER_VM_SUB_DESCRIPTION
+							String HCMX_REQ_TITLE
+							String HCMX_REQ_DESCRIPTION
+							String HCMX_SUB_NAME
+							String HCMX_SUB_DESCRIPTION
 							
 							String curlCMD = "curl"
 							
@@ -194,13 +247,13 @@ pipeline
 								error "HCMX_SUB_CANCEL_DELAY_SECONDS must be an integer"
 							}
 							
-							if (env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS && env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS.toString().isNumber())
+							if (env.HCMX_REQ_DEPLOY_TIMEOUT_SECONDS && env.HCMX_REQ_DEPLOY_TIMEOUT_SECONDS.toString().isNumber())
 							{
-								HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS as int
+								HCMX_REQ_DEPLOY_TIMEOUT_SECONDS = env.HCMX_REQ_DEPLOY_TIMEOUT_SECONDS as int
 							}
 							else
 							{
-								error "HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS must be an integer"
+								error "HCMX_REQ_DEPLOY_TIMEOUT_SECONDS must be an integer"
 							}
 							
 							if(env.USE_PROXY)
@@ -346,45 +399,45 @@ pipeline
 								error "HCMX_VCENTER_VM_NUM must be an integer"
 							}
 							
-							if(env.HCMX_VCENTER_VM_REQUEST_TITLE)
+							if(env.HCMX_REQ_TITLE)
 							{
-								HCMX_VCENTER_VM_REQUEST_TITLE = env.HCMX_VCENTER_VM_REQUEST_TITLE
+								HCMX_REQ_TITLE = env.HCMX_REQ_TITLE
 							}
 							else
 							{
-								error "HCMX_VCENTER_VM_REQUEST_TITLE cannot be NULL or empty"
+								error "HCMX_REQ_TITLE cannot be NULL or empty"
 							}
 							
-							if(env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION)
+							if(env.HCMX_REQ_DESCRIPTION)
 							{
-								HCMX_VCENTER_VM_REQUEST_DESCRIPTION = env.HCMX_VCENTER_VM_REQUEST_DESCRIPTION
+								HCMX_REQ_DESCRIPTION = env.HCMX_REQ_DESCRIPTION
 							}
 							else
 							{
-								error "HCMX_VCENTER_VM_REQUEST_DESCRIPTION cannot be NULL or empty"
+								error "HCMX_REQ_DESCRIPTION cannot be NULL or empty"
 							}
 							
-							if(env.HCMX_VCENTER_VM_SUB_NAME)
+							if(env.HCMX_SUB_NAME)
 							{
-								HCMX_VCENTER_VM_SUB_NAME = env.HCMX_VCENTER_VM_SUB_NAME
+								HCMX_SUB_NAME = env.HCMX_SUB_NAME
 							}
 							else
 							{
-								error "HCMX_VCENTER_VM_SUB_NAME cannot be NULL or empty"
+								error "HCMX_SUB_NAME cannot be NULL or empty"
 							}
 							
-							if(env.HCMX_VCENTER_VM_SUB_DESCRIPTION)
+							if(env.HCMX_SUB_DESCRIPTION)
 							{
-								HCMX_VCENTER_VM_SUB_DESCRIPTION = env.HCMX_VCENTER_VM_SUB_DESCRIPTION
+								HCMX_SUB_DESCRIPTION = env.HCMX_SUB_DESCRIPTION
 							}
 							else
 							{
-								error "HCMX_VCENTER_VM_SUB_DESCRIPTION cannot be NULL or empty"
+								error "HCMX_SUB_DESCRIPTION cannot be NULL or empty"
 							}				
 							
-							if (HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS >= HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS)
+							if (HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS >= HCMX_REQ_DEPLOY_TIMEOUT_SECONDS)
 							{
-								error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be less than HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS."
+								error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be less than HCMX_REQ_DEPLOY_TIMEOUT_SECONDS."
 							}
 							
 							echo "HCMX: Get SMAX Auth Token"
@@ -438,14 +491,16 @@ pipeline
 									String depVMResponse
 									int depVMResponseCode
 									
-									// Submit a REST API call to HCMX to deploy a new test server VM								
+									// DEPLOY_ADHOC_TEST_ENVIRONMENT_REQUEST_USING_HCMX
+									// Submit a REST API call to HCMX to deploy a new ad-hoc test environment
+									// Replace API body and environment variables in both if and else clause
 									if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_VCENTER_VM_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")	
+										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_REQ_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_REQ_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")	
 									}
 									else
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_VCENTER_VM_REQUEST_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_VCENTER_VM_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_VCENTER_VM_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_VCENTER_VM_REQUEST_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")																		
+										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' --proxy-user $PROXY_USER:$PROXY_USER_PSW -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_REQ_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_REQ_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")																		
 									}
 																	
 													
@@ -465,9 +520,9 @@ pipeline
 										// Loop until Request status changes to Close. Once it is in closed status VM is deployed and ready for testing.
 										while (reqStatus != 'Close')
 										{
-											if (timeSpent > HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS)
+											if (timeSpent > HCMX_REQ_DEPLOY_TIMEOUT_SECONDS)
 											{
-												error "Failed to provision VM deployment within the timeout period of $HCMX_REQ_DEPLOY_TESTVM_TIMEOUT_SECONDS seconds"										
+												error "Failed to provision VM deployment within the timeout period of $HCMX_REQ_DEPLOY_TIMEOUT_SECONDS seconds"										
 											}
 											// Submit a REST API call to HCMX to get status of VM deployment request
 											echo "HCMX: Get request status until it is Closed"
@@ -575,6 +630,7 @@ pipeline
 												{											
 													if(ipAddress && ipAddress.trim())
 													{
+														// COPY_BUILD_TO_ADHOC_TEST_ENVIRONMENT
 														//Copy build to the deployed virtual machines for testing.
 														echo '***************************************** COPYING BUILD TO THE DEPLOYED VM(s) FOR TESTING  *****************************************'
 														echo "HCMX: Copying build to the virtual machine with IP address: $ipAddress"
@@ -592,6 +648,7 @@ pipeline
 												for (String ipAddress : testVMIPList) 
 												{											
 																											
+													// TEST_BUILD_IN_ADHOC_TEST_ENVIRONMENT
 													// Test build on the deployed virtual machine.
 													echo '***************************************** TESTING BUILD ON THE DEPLOYED/TEST VM(s) *****************************************'
 													echo "HCMX: Testing build on the virtual machine with IP address: $ipAddress"
