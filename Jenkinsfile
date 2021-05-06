@@ -126,7 +126,7 @@ pipeline
 		// Enter greater than one if your test environment requires testing of multiple components in 
 		// a distributed architecture.
 		
-		HCMX_VCENTER_VM_NUM = "1"		
+		HCMX_VCENTER_VM_NUM = "2"		
     }
 
     stages 
