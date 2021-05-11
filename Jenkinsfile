@@ -49,7 +49,7 @@ pipeline
 		// If your web proxy requires credentials, create a new credential in Jenkins global scope with web proxy user ID 
 		// and password authentication information and save the credential as ProxyCred.		
 		
-		PROXY_REQUIRES_CREDENTIALS = "YES"
+		PROXY_REQUIRES_CREDENTIALS = "NO"
 		
 		// Enter interval in seconds to check status of HCMX offering (VM or VM with software) deployment request in HCMX
 		// After submission of a new request to deploy an HCMX offering, that offering's deployment may take longer  
@@ -66,7 +66,7 @@ pipeline
 		// Set HCMX_SUB_CANCEL_DELAY_SECONDS variable to at-least 180 seconds if you are using it in a POC or demo 
 		// environment so that deployed ad-hoc test environment VMs are still available to show to the audience.
 		
-		HCMX_SUB_CANCEL_DELAY_SECONDS = "240"
+		HCMX_SUB_CANCEL_DELAY_SECONDS = "0"
 		
 		// Enter time in seconds to wait for HCMX and its target cloud provider to provision the ad-hoc test environment.  
 		// If HCMX and its target cloud provider takes longer than the timeout specified in HCMX_REQ_DEPLOY_TIMEOUT_SECONDS
@@ -168,23 +168,10 @@ pipeline
 					{
 						withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ProxyCred', usernameVariable: 'PROXY_USER', passwordVariable: 'PROXY_USER_PSW']]) 
 						{	    
+							/****** HCMX_GLOBAL_ENV_VARIABLE_INIT_VALIDATION_SECTION_START *******/
+							
 							final int PROXY_PORT_NUM_MIN = 0
-							final int PROXY_PORT_NUM_MAX = 65535
-							
-							// Minimum memory size in MB that must be specified to deploy VMs
-							final int HCMX_VCENTER_VM_MIN_MEMORY_SIZE = 4
-			
-							// Maximum memory size in MB that can be specified to deploy VMs
-							final int HCMX_VCENTER_VM_MAX_MEMORY_SIZE = 6275072
-							
-							// Minimum number of CPUs that must be specified to deploy VM
-							final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
-														
-							// Maximum number of CPUs that can be specified to deploy VM
-							final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32	
-							
-							// Minimum number of VMs that must be specified to deploy VM
-							final int HCMX_VCENTER_VM_MIN_NUM = 1
+							final int PROXY_PORT_NUM_MAX = 65535							
 							
 							String HCMX_EXT_ACCESS_HOSTNAME
 							String HCMX_TENANT_ID
@@ -195,15 +182,7 @@ pipeline
 							String PROXY_HOST
 							int PROXY_PORT
 							String PROXY_PROTOCOL
-							String PROXY_REQUIRES_CREDENTIALS
-													
-							String HCMX_VCENTER_DATACENTER
-							String HCMX_VCENTER_VM_TEMPLATE
-							String HCMX_VCENTER_VM_CUSTOMSPEC
-							String HCMX_VCENTER_VMNAME_PREFIX						
-							long HCMX_VCENTER_VM_MEMORY_SIZE_MB = 1024
-							int HCMX_VCENTER_VM_NUM_CPU = 1
-							int HCMX_VCENTER_VM_NUM = 1
+							String PROXY_REQUIRES_CREDENTIALS							
 							String HCMX_REQ_TITLE
 							String HCMX_REQ_DESCRIPTION
 							String HCMX_SUB_NAME
@@ -324,6 +303,73 @@ pipeline
 								curlCMD = "curl"
 							}
 							
+							if(env.HCMX_REQ_TITLE)
+							{
+								HCMX_REQ_TITLE = env.HCMX_REQ_TITLE
+							}
+							else
+							{
+								error "HCMX_REQ_TITLE cannot be NULL or empty"
+							}
+							
+							if(env.HCMX_REQ_DESCRIPTION)
+							{
+								HCMX_REQ_DESCRIPTION = env.HCMX_REQ_DESCRIPTION
+							}
+							else
+							{
+								error "HCMX_REQ_DESCRIPTION cannot be NULL or empty"
+							}
+							
+							if(env.HCMX_SUB_NAME)
+							{
+								HCMX_SUB_NAME = env.HCMX_SUB_NAME
+							}
+							else
+							{
+								error "HCMX_SUB_NAME cannot be NULL or empty"
+							}
+							
+							if(env.HCMX_SUB_DESCRIPTION)
+							{
+								HCMX_SUB_DESCRIPTION = env.HCMX_SUB_DESCRIPTION
+							}
+							else
+							{
+								error "HCMX_SUB_DESCRIPTION cannot be NULL or empty"
+							}				
+							
+							if (HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS >= HCMX_REQ_DEPLOY_TIMEOUT_SECONDS)
+							{
+								error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be less than HCMX_REQ_DEPLOY_TIMEOUT_SECONDS."
+							}
+							/****** HCMX_GLOBAL_ENV_VARIABLE_INIT_VALIDATION_SECTION_END *******/
+							
+							/****** HCMX_OFFERING_SPECIFIC_ENV_VARIABLE_INIT_VALIDATION_SECTION_START *******/
+							
+							// Minimum memory size in MB that must be specified to deploy VMs
+							final int HCMX_VCENTER_VM_MIN_MEMORY_SIZE = 4
+			
+							// Maximum memory size in MB that can be specified to deploy VMs
+							final int HCMX_VCENTER_VM_MAX_MEMORY_SIZE = 6275072
+							
+							// Minimum number of CPUs that must be specified to deploy VM
+							final int HCMX_VCENTER_VM_MIN_NUM_CPU = 1
+														
+							// Maximum number of CPUs that can be specified to deploy VM
+							final int HCMX_VCENTER_VM_MAX_NUM_CPU = 32	
+							
+							// Minimum number of VMs that must be specified to deploy VM
+							final int HCMX_VCENTER_VM_MIN_NUM = 1
+							
+							String HCMX_VCENTER_DATACENTER
+							String HCMX_VCENTER_VM_TEMPLATE
+							String HCMX_VCENTER_VM_CUSTOMSPEC
+							String HCMX_VCENTER_VMNAME_PREFIX						
+							long HCMX_VCENTER_VM_MEMORY_SIZE_MB = 1024
+							int HCMX_VCENTER_VM_NUM_CPU = 1
+							int HCMX_VCENTER_VM_NUM = 1
+							
 							if(env.HCMX_VCENTER_DATACENTER)
 							{
 								HCMX_VCENTER_DATACENTER = env.HCMX_VCENTER_DATACENTER
@@ -397,48 +443,9 @@ pipeline
 							else
 							{
 								error "HCMX_VCENTER_VM_NUM must be an integer"
-							}
+							}						
 							
-							if(env.HCMX_REQ_TITLE)
-							{
-								HCMX_REQ_TITLE = env.HCMX_REQ_TITLE
-							}
-							else
-							{
-								error "HCMX_REQ_TITLE cannot be NULL or empty"
-							}
-							
-							if(env.HCMX_REQ_DESCRIPTION)
-							{
-								HCMX_REQ_DESCRIPTION = env.HCMX_REQ_DESCRIPTION
-							}
-							else
-							{
-								error "HCMX_REQ_DESCRIPTION cannot be NULL or empty"
-							}
-							
-							if(env.HCMX_SUB_NAME)
-							{
-								HCMX_SUB_NAME = env.HCMX_SUB_NAME
-							}
-							else
-							{
-								error "HCMX_SUB_NAME cannot be NULL or empty"
-							}
-							
-							if(env.HCMX_SUB_DESCRIPTION)
-							{
-								HCMX_SUB_DESCRIPTION = env.HCMX_SUB_DESCRIPTION
-							}
-							else
-							{
-								error "HCMX_SUB_DESCRIPTION cannot be NULL or empty"
-							}				
-							
-							if (HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS >= HCMX_REQ_DEPLOY_TIMEOUT_SECONDS)
-							{
-								error "HCMX_REQ_STATUS_CHK_INTERVAL_SECONDS must be less than HCMX_REQ_DEPLOY_TIMEOUT_SECONDS."
-							}
+							/****** HCMX_OFFERING_SPECIFIC_ENV_VARIABLE_INIT_VALIDATION_SECTION_END *******/
 							
 							echo "HCMX: Get SMAX Auth Token"
 							// HCMX REST APIs require SMAX AUTH TOKEN and TENANT ID to perform any POST, PUT and GET operations.
@@ -491,7 +498,7 @@ pipeline
 									String depVMResponse
 									int depVMResponseCode
 									
-									// DEPLOY_ADHOC_TEST_ENVIRONMENT_REQUEST_USING_HCMX
+									// DEPLOY_ADHOC_TEST_ENVIRONMENT_REQUEST_USING_HCMX_OFFERING
 									// Submit a REST API call to HCMX to deploy a new ad-hoc test environment
 									// Replace API body and environment variables in both if and else clause
 									if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
@@ -612,6 +619,7 @@ pipeline
 														def svcInstPropertyArray = member.properties
 														for(def propMember : svcInstPropertyArray) 
 														{
+															// HCMX_QUERY_VM_IP_PROPERTY
 															if(propMember.name && propMember.name.equalsIgnoreCase("primary_ip_address"))
 															{
 																testVMIPList.add(propMember.propertyValue)																										 
