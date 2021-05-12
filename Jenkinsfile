@@ -87,7 +87,7 @@ pipeline
 		// Enter subscription name to be used for the ad-hoc test environment deployment request in HCMX.
 		// A subscription associates user and their deployed services and/or assets. A subscription also has a start and end date.
 		
-		HCMX_SUB_NAME = "Hello World Test VM"
+		HCMX_SUB_NAME = "Hello World Test VM 0001"
 		
 		// Enter subscription description to be used for the ad-hoc test environment deployment request in HCMX.
 		// A subscription associates user and their deployed services and/or assets. A subscription also has a start and end date.
