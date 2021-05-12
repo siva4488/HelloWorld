@@ -87,7 +87,7 @@ pipeline
 		// Enter subscription name to be used for the ad-hoc test environment deployment request in HCMX.
 		// A subscription associates user and their deployed services and/or assets. A subscription also has a start and end date.
 		
-		HCMX_SUB_NAME = "Hello World Test VM 0001"
+		HCMX_SUB_NAME = "Hello World Test VM"
 		
 		// Enter subscription description to be used for the ad-hoc test environment deployment request in HCMX.
 		// A subscription associates user and their deployed services and/or assets. A subscription also has a start and end date.
@@ -497,7 +497,7 @@ pipeline
 									long epochMilliSeconds = curDate.getTime()
 									String depVMResponse
 									int depVMResponseCode
-									
+									String HCMX_SUB_UNIQUE_NAME = HCMX_SUB_NAME + epochMilliSeconds
 									// DEPLOY_ADHOC_TEST_ENVIRONMENT_REQUEST_USING_HCMX_OFFERING
 									// Submit a REST API call to HCMX to deploy a new ad-hoc test environment
 									// Replace API body and environment variables in both if and else clause
