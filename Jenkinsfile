@@ -497,7 +497,7 @@ pipeline
 									long epochMilliSeconds = curDate.getTime()
 									String depVMResponse
 									int depVMResponseCode
-									String HCMX_SUB_UNIQUE_NAME = HCMX_SUB_NAME + epochMilliSeconds
+									String HCMX_SUB_UNIQUE_NAME = HCMX_SUB_NAME +"_" + epochMilliSeconds
 									// DEPLOY_ADHOC_TEST_ENVIRONMENT_REQUEST_USING_HCMX_OFFERING
 									// Submit a REST API call to HCMX to deploy a new ad-hoc test environment
 									// Replace API body and environment variables in both if and else clause
