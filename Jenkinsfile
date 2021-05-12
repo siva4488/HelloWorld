@@ -72,7 +72,7 @@ pipeline
 		// If HCMX and its target cloud provider takes longer than the timeout specified in HCMX_REQ_DEPLOY_TIMEOUT_SECONDS
 		// variable, exit the build.
 		
-		HCMX_REQ_DEPLOY_TIMEOUT_SECONDS = "600"		
+		HCMX_REQ_DEPLOY_TIMEOUT_SECONDS = "1800"		
 				
 		// Enter request title to use for the ad-hoc test environment deployment request in HCMX.
 		// HCMX_REQ_TITLE variable is a mandatory variable and must contain a value.
