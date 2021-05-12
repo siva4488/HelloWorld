@@ -12,7 +12,7 @@ pipeline
 		// If HCMX tenant self-service URL is https://server.xyz.com/saw?TENANTID=616409711, then HCMX external access hostname is server.xyz.com
 		// HCMX_EXT_ACCESS_HOSTNAME is a mandatory variable and must contain a value.
 		
-		HCMX_EXT_ACCESS_HOSTNAME = "catvmlmpoc1.ftc.hpeswlab.net"
+		HCMX_EXT_ACCESS_HOSTNAME = "lagoon-m1.ftc.hpeswlab.net"
         
 		// Enter your environment’s HCMX tenant ID that has DND capability deployed in it. 
 		// DND capability is required in a tenant to provision and manage VMs. 
@@ -21,7 +21,7 @@ pipeline
 		// If HCMX tenant self-service URL is https://server.xyz.com/saw?TENANTID=616409711, then HCMX tenant ID is 616409711. 
 		// HCMX_TENANT_ID is a mandatory variable and must contain a value.
 		
-		HCMX_TENANT_ID = "616409711"
+		HCMX_TENANT_ID = "437246453"
 
 		// If Jenkins needs a web proxy to reach HCMX, set USE_PROXY variable to YES. 
 		// USE_PROXY is a mandatory variable and must contain a value. Possible values are YES and NO.
@@ -31,7 +31,7 @@ pipeline
 		// Enter fully qualified domain name of web proxy. If USE_PROXY variable is set to YES, then PROXY_HOST variable is mandatory. 
 		// If USE_PROXY variable is set to NO, then PROXY_HOST variable is optional.
 		
-		PROXY_HOST = "web-proxy.us.softwaregrp.net"
+		PROXY_HOST = "web-proxy.in.softwaregrp.net"
 		
 		// Enter web proxy port number. If USE_PROXY variable is set to YES, then PROXY_PORT variable is mandatory. 
 		// If USE_PROXY variable is set to NO, then PROXY_PORT variable is optional.
@@ -503,7 +503,7 @@ pipeline
 									// Replace API body and environment variables in both if and else clause
 									if (USE_PROXY.equalsIgnoreCase("NO") || ((USE_PROXY.equalsIgnoreCase("YES")) && (PROXY_REQUIRES_CREDENTIALS.equalsIgnoreCase("NO"))))
 									{
-										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet0c6eb101a1a178c3c49c3badbc481f05_c\\":{\\"Option34c8d8d8403ac43361b8b8083004ef4a_c\\":true},\\"OptionSet2ee4a8f73fcd1606c1337172e8411e2a_c\\":{\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true},\\"OptionSet473C6F2BE6F45DB8381664FC9097BE37_c\\":{\\"Option2E8493EA9AC2821929DA64FC90978A98_c\\":true},\\"changedUserOptionsForSimulation\\":\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c&\\",\\"PropertyserverCount34c8d8d8403ac43361b8b8083004ef4a_c\\":\\"''' + HCMX_VCENTER_VM_NUM + '''\\",\\"PropertyproviderId2E8493EA9AC2821929DA64FC90978A98_c\\":\\"2c908fac77eefca5017822299d726af6\\",\\"PropertydatacenterName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_DATACENTER + '''\\",\\"PropertyvirtualMachine2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_TEMPLATE + '''\\",\\"PropertycustomizationTemplateName2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VM_CUSTOMSPEC + '''\\",\\"PropertyvmNamePrefix2E8493EA9AC2821929DA64FC90978A98_c\\":\\"''' + HCMX_VCENTER_VMNAME_PREFIX + '''\\",\\"Option19cd6cd22067142e0977622ed71ced7d_c\\":true,\\"Optionad52a8efe1465faa8c389ae92bf90d0c_c\\":false,\\"PropertyvmMemorySize19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_MEMORY_SIZE_MB + '''\\",\\"PropertyvmCpuCount19cd6cd22067142e0977622ed71ced7d_c\\":\\"''' + HCMX_VCENTER_VM_NUM_CPU + '''\\"}}]}","Description":"<p>''' + HCMX_REQ_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_REQ_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")	
+										(depVMResponse, depVMResponseCode) = sh(script: '''set +x;''' + curlCMD + ''' -s -w '\\n%{response_code}' -X POST "''' + HCMX_CREATE_REQUEST_URL + '''" -k -H "Content-Type: application/json" -H "Accept: application/json" -H "Accept: text/plain" --cookie "TENANTID=$HCMX_TENANT_ID;SMAX_AUTH_TOKEN="''' + SMAX_AUTH_TOKEN + '''"" -d '{"entities":[{"entity_type":"Request","properties":{"RequestedForPerson":"''' + HCMX_PERSON_ID + '''","StartDate":''' + epochMilliSeconds + ''',"RequestsOffering":"10096","CreationSource":"CreationSourceEss","RequestedByPerson":"''' + HCMX_PERSON_ID + '''","DataDomains":["Public"],"CreateTime":''' + epochMilliSeconds + ''',"UserOptions":"{\\"complexTypeProperties\\":[{\\"properties\\":{\\"OptionSet3d138cbd7bab64a3475aa2a06f059fd0_c\\":{\\"Option63f898e538dffca2feb5ef6a7d367421_c\\":true},\\"changedUserOptionsForSimulation\\":\\"Description&\\",\\"Propertybuildurl63f898e538dffca2feb5ef6a7d367421_c\\":\\"test\\"}}]}","Description":"<p>''' + HCMX_REQ_DESCRIPTION + '''</p>","RelatedSubscriptionName":"''' + HCMX_SUB_NAME + '''","RelatedSubscriptionDescription":"<p>''' + HCMX_SUB_DESCRIPTION + '''</p>","RequestAttachments":"{\\"complexTypeProperties\\":[]}","DisplayLabel":"''' + HCMX_REQ_TITLE + '''"}}],"operation":"CREATE"}' ''', returnStdout: true).trim().tokenize("\n")              
 									}
 									else
 									{
